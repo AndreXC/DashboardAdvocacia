@@ -69,14 +69,9 @@
             <div class="customer-list-panel">
                 <div class="list-header">
                     <div class="header-actions">
-                        <div class="search-container">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-search" viewBox="0 0 16 16">
-                                <path
-                                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                            </svg>
-                            <input type="text" id="search-input" placeholder="Buscar cliente...">
-                        </div>
+                     
+                        <div class="search-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" class="lucide lucide-search search-icon"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg><input type="text" id="search-input" placeholder="Buscar evento..." data-listener-added_5e367e22="true"></div>
+                        
                         <button id="add-new-customer-btn" class="add-button" title="Adicionar Novo Cliente">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 viewBox="0 0 16 16">
@@ -406,6 +401,7 @@
 
 
     <script src="{% static 'Clientes_painel/js/script.js' %}"></script>
+    <script src="{% static 'Clientes_painel/js/theme.js' %}"></script>
 </body>
 
 </html>

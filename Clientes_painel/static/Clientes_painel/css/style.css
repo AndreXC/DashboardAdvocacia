@@ -17,6 +17,12 @@
     --color-info-dark: #7d8da1;
     --color-dark: #363949;
     --color-light: rgba(132, 139, 200, 0.18);
+    --color-h1: #202528;
+    --color-h2: #202528;
+    --border-input: #dee2e6;
+    --SelectedTR: #f1f1f1;
+    --colorClientText:#6c757d; 
+    --colorSvg: #6c757d;
 }
 
 * {
@@ -24,6 +30,27 @@
     text-decoration: none;
     list-style: none;
     box-sizing: border-box;
+}
+
+.dark-theme-variables {
+    --bg-color: #111827;
+    --panel-bg: #1f2937;
+    --border-color: #374151;
+    --color-dark-variant: #a3bdcc;
+    --color-light: rgba(0, 0, 0, 0.4);
+    --box-shadow: 0 2rem 3rem var(--color-light);
+    --color-h1: white;
+    --color-h2: white;
+    --border-input: #626262;
+    --text-muted: white;
+    --SelectedTR: #111827;
+     --colorClientText:#9ca3af; 
+     --colorSvg: #111827;
+}
+
+.dark-theme-variables .summary {
+    background-color: #333;
+    color: #eee;
 }
 
 body {
@@ -152,7 +179,7 @@ aside {
 aside .top {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin-top: 1.4rem;
 }
 
@@ -163,6 +190,7 @@ aside .logo {
 
 aside .logo h2 {
     font-size: 1.5rem;
+    color: var(--color-h2);
 }
 
 aside .close {
@@ -179,6 +207,7 @@ aside .sidebar {
 
 aside h3 {
     font-weight: 500;
+    color: var(--color-h2);
 }
 
 aside .sidebar a {
@@ -225,12 +254,18 @@ aside .sidebar a:hover h3 {
 }
 
 
+h1 {
+    color: var(--color-h1);
+}
+
+/* Correções para o estilo .list-header */
 .list-header {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     gap: 1rem;
+    background-color: var(--bg-color);
 }
 
 .list-header h3 {
@@ -238,13 +273,17 @@ aside .sidebar a:hover h3 {
     white-space: nowrap;
 }
 
+/* O .header-actions precisa ser um flexbox */
 .header-actions {
     display: flex;
+    gap: 0; /* Remove a lacuna entre o campo de pesquisa e o botão */
 }
 
+/* O search-container precisa ocupar todo o espaço disponível */
 .search-container {
     position: relative;
-    width: 100%;
+    flex-grow: 1; /* Permite que o search-container preencha o espaço */
+    width: auto;
 }
 
 .search-container svg {
@@ -252,24 +291,47 @@ aside .sidebar a:hover h3 {
     top: 50%;
     left: 12px;
     transform: translateY(-50%);
-    color: var(--text-muted);
+    color: black;
 }
 
-#search-input {
-    width: 100%;
-    padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+
+.search-icon,
+.filter-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-h1);
+    pointer-events: none;
+}
+
+
+.search-wrapper {
+    position: relative;
+    flex-grow: 1;
+    width: auto;
+}
+
+
+#search-input,
+#creator-filter-input {
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: #f1f3f5;
-    transition: all 0.2s ease;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+    color: var(--text-muted);
+    width: 180px;
+    transition: width 0.3s, background-color 0.2s;
 }
 
-#search-input:focus {
+#search-input:focus,
+#creator-filter-input:focus {
     outline: none;
-    border-color: var(--primary-color);
-    background-color: var(--panel-bg);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    width: 220px;
 }
+
 
 .add-button {
     flex-shrink: 0;
@@ -280,15 +342,16 @@ aside .sidebar a:hover h3 {
     height: 36px;
     cursor: pointer;
     transition: background-color 0.2s;
-    position: relative;
-    left: 30px;
-    border-radius: 0px 10px 10px 0px;
+    /* Remova as propriedades de posicionamento que causam o erro */
+    /* position: relative; */
+    /* left: 30px; */
+    /* Ajuste o border-radius para se encaixar com o input */
+    border-radius: 0 var(--border-radius) var(--border-radius) 0; /* Arredonda apenas os cantos direitos */
 }
 
 .add-button:hover {
     background-color: var(--primary-hover);
 }
-
 
 
 .table-container {
@@ -305,7 +368,9 @@ th,
 td {
     padding: 0.85rem 1.5rem;
     text-align: left;
-    border-bottom: 1px solid #f1f3f5;
+    border-bottom: var(--border-color);
+    color:  var(--text-muted);
+
 }
 
 th {
@@ -321,11 +386,11 @@ tbody tr {
 }
 
 tbody tr:hover {
-    background-color: #f8f9fa;
+    background-color: var(--SelectedTR);
 }
 
 tbody tr.selected {
-    background-color: #e9ecef;
+    background-color: var(--SelectedTR);
 }
 
 td:last-child {
@@ -361,6 +426,7 @@ td:last-child {
     margin: 0;
     font-size: 1.75rem;
     font-weight: 700;
+    color: var(--color-h1);
 }
 
 #customer-email {
@@ -426,6 +492,7 @@ td:last-child {
 .info-item p {
     margin: 0;
     font-weight: 500;
+    color: var(--colorClientText) 
 }
 
 /* --- Seção de Serviços --- */
@@ -561,6 +628,7 @@ td:last-child {
 .modal-header h2 {
     margin: 0;
     font-size: 1.25rem;
+    color: var(--color-h2);
 }
 
 .close-button {
@@ -584,7 +652,6 @@ td:last-child {
     display: flex;
     justify-content: flex-end;
     padding: 1rem 2rem;
-    background-color: #f8f9fa;
     border-top: 1px solid var(--border-color);
     border-bottom-left-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
@@ -611,7 +678,7 @@ td:last-child {
     padding: 1rem 0.75rem 0.5rem;
     font-family: inherit;
     font-size: 1rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-input);
     border-radius: 6px;
     background-color: transparent;
     transition: border-color 0.2s;
@@ -848,6 +915,11 @@ td:last-child {
     border-color: var(--red-overdue);
 }
 
+
+svg {
+    color: var(--colorSvg);
+
+}
 
 /* Adicione estas regras ao final do seu CSS */
 
