@@ -1,0 +1,59 @@
+# Ambiente virtual
+venv/
+env/
+ENV/
+.venv/
+.pyvenv/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Banco de dados SQLite
+*.sqlite3
+*.db
+
+# Logs
+*.log
+logs/
+
+# Configurações sensíveis
+.env
+*.env
+.env.*
+
+# Arquivos de migração (opcional, só se quiser ignorar)
+# **Normalmente é bom versionar migrações, mas você pode ignorar em testes**
+#migrations/
+
+# Arquivos compilados / temporários
+*.mo
+*.pot
+*.tmp
+*.swp
+*.swo
+*.bak
+*.old
+
+# Arquivos de build
+dist/
+build/
+staticfiles/
+media/
+
+# IDEs / Editores
+.vscode/
+.idea/
+*.iml
+
+# Cobertura de testes
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# Docker
+*.pid
+*.seed
+*.pid.lock
