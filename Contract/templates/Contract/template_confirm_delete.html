@@ -1,0 +1,20 @@
+{% block title %}Excluir Modelo de Contrato{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Excluir Modelo: "{{ template.title }}"</h1>
+</div>
+
+<div class="card p-4">
+    <div class="alert alert-danger">
+        <p>Você tem certeza que deseja excluir o modelo <strong>"{{ template.title }}"</strong>?</p>
+        <p>Esta ação não pode ser desfeita.</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger me-2">Sim, Excluir</button>
+        <a href="{% url 'Contract:list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

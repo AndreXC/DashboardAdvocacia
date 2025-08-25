@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+{% load static %}
+{% include "includes/header.html" %}
+
+
+<body>
+    {% include "includes/sidebar.html" %}
+
+    <main class="main-content">
+        <header>
+            <h1>Contratos</h1>
+            {% include "includes/theme.html" %}
+        </header>
+
+        <div class="content-container-app">
+            <div class="customer-list-panel">
+                {% include "includes/search.html" %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Modelos De Contratos</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="customer-list-tbody"></tbody>
+                        {% for template in templates %}
+                        <td>{{ template.title }}</td>
+                        <td>
+                            <a href="{% url 'Contract:edit' template.pk %}"
+                                class="btn btn-warning btn-sm me-2">Editar</a>
+                        </td>
+                        <td>
+                            <a href="{% url 'Contract:delete' template.pk %}"
+                                class="btn btn-danger btn-sm">Excluir</a>
+                        </td>
+                        {% empty %}
+                        <td colspan="2">Nenhum modelo de contrato cadastrado.</td>
+                        {% endfor %}
+
+                    </table>
+                </div>
+
+            </div>
+
+            {% csrf_token %}
+            <div class="customer-detail-panel" id="customer-detail-view">
+                <div id="empty-state" class="empty-state-container">
+                    <p>Selecione um Contrato para ver os detalhes</p>
+                </div>
+
+                <div id="customer-content" class="hidden">
+
+
+
+                </div>
+            </div>
+
+            <div class="fixed bottom-8 right-8">
+                <button id="add-new-Contrato" title="Adicionar Novo Contrato"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-2xl"></i>      
+                </button>
+            </div>
+    </main>
+
+{% block scripts %}
+    <script src="{% static 'resources/js/includes/theme.js' %}"></script>
+    <script>
+        const button = document.getElementById('add-new-Contrato')
+        if (button) {
+            button.addEventListener('click', () => {
+                window.location.href = '{% url "Contract:ContractCreate" %}';
+            });
+        }
+    </script>    
+    
+{% endblock %}   
+
+</body>
+
+</html>

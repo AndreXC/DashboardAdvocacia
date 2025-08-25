@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ClientesPainelConfig(AppConfig):
+class ResourcesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'Clientes_painel'
+    name = 'resources'

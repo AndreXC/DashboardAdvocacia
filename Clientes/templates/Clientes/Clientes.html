@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    {% load static %}
+    
+    {% include "includes/header.html" %}
+
+<body>
+    {% include "includes/sidebar.html" %}
+
+    <main class="main-content">
+        <header>
+            <h1>Clientes</h1>
+            {% include "includes/theme.html" %}
+        </header>
+        <div class="content-container-app">
+            <div class="customer-list-panel">
+                {% include "includes/search.html" %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome Completo</th>
+                                <th>Empresa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customer-list-tbody"></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            {% csrf_token %}
+            <div class="customer-detail-panel" id="customer-detail-view">
+                <div id="empty-state" class="empty-state-container">
+                    <p>Selecione um cliente para ver os detalhes</p>
+                </div>
+
+                <div id="customer-content" class="hidden">
+                    <div class="customer-info-header">
+                        <img id="customer-photo" src="" alt="Foto do Cliente">
+                        <div class="customer-main-info">
+                            <h2 id="customer-fullname"></h2>
+                        </div>
+                        <div class="customer-actions">
+                            <button id="edit-customer-btn" class="button-icon" title="Editar Cliente">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    viewBox="0 0 16 16">
+                                    <path
+                                        d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                    <path fill-rule="evenodd"
+                                        d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                </svg>
+                            </button>
+                            <button id="delete-customer-btn" class="button-icon danger" title="Excluir Cliente">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    viewBox="0 0 16 16">
+                                    <path
+                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                    <path fill-rule="evenodd"
+                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                </svg>
+                            </button>
+                            <button id="save-customer-btn" class="button-primary hidden">Salvar</button>
+                            <button id="cancel-edit-btn" class="button-secondary hidden">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <div class="detail-tabs">
+                        <button class="tab-link active" data-tab="info">Informações</button>
+                        <button class="tab-link" data-tab="services">Serviços</button>
+                        <button class="tab-link" data-tab="contratos">Contrato</button>
+                    </div>
+
+                    <div id="tab-content-info" class="tab-content active">
+                    </div>
+
+                    <div id="tab-content-services" class="tab-content">
+                        <div class="services-header">
+                            <h4>Serviços Contratados</h4>
+                            <button id="add-new-service-btn" class="button-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    viewBox="0 0 16 16">
+                                    <path
+                                        d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                </svg>
+                                Adicionar Serviço
+                            </button>
+                        </div>
+                        <table class="services-table">
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th>Status</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="services-tbody"></tbody>
+                        </table>
+                        <hr class="section-divider">
+                        <div id="service-invoices-section" class="hidden">
+                            <h3>Faturas do Serviço Selecionado</h3>
+                            <table class="invoices-table">
+                                <thead>
+                                    <tr>
+                                        <th>Parcela</th>
+                                        <th>Data Venc.</th>
+                                        <th>Status</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoices-tbody"></tbody>
+                            </table>
+                            <div class="total-summary">
+                                <strong>Total do Serviço:</strong>
+                                <strong id="total-invoices-amount">$ 0.00</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-content-contratos" class="tab-content">
+                        <div class="services-header">
+                            <h4>Contratos</h4>
+                            <button id="add-new-contract-btn" class="button-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    viewBox="0 0 16 16">
+                                    <path
+                                        d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                </svg>
+                                Adicionar Contrato
+                            </button>
+                        </div>
+                        <table class="contracts-table">
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th>Status</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contracts-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+         <div class="fixed bottom-8 right-8">
+            <button id="add-new-customer-btn" title="Adicionar Novo Cliente"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+                <i class="fa-solid fa-plus text-2xl"></i>      
+            </button>
+        </div>
+
+        {% include "Clientes/Modal/AddCliente.html" %}
+
+        {% include "Clientes/Modal/AddService.html" %}
+
+        {% include "Clientes/Modal/Delete_cliente.html" %}
+
+        {% include "includes/ModalErro.html" %}
+
+
+
+        
+    </main>
+
+    {% block scripts %}   
+        <script src="{% static 'Clientes/js/Cliente.js' %}"></script>
+        <script src="{% static 'resources/js/includes/theme.js' %}"></script>
+    {% endblock %}
+    
+</body>
+
+</html>

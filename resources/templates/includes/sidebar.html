@@ -1,0 +1,38 @@
+{% load active_link %}
+<aside>
+    <div class="top">
+        <div class="logo">
+            <h2>Juri<span class="primary">Dash</span></h2>
+        </div>
+        <div class="close" id="close-btn">
+            <span class="material-icons-sharp">close</span>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <a href="{% url 'Clientes:dashboard' %}" class="{% active_link 'Clientes:dashboard' %}">
+            <span class="material-icons-sharp">grid_view</span>
+            <h3>Dashboard</h3>
+        </a>
+
+        <a href="{% url 'Contract:Contract' %}" class="{% active_link 'Contract:Contract' %}">
+            <span class="material-icons-sharp">person_outline</span>
+            <h3>Clientes</h3>
+        </a>
+
+        {% comment %} <a href="{% url 'relatorios' %}" class="{% active 'relatorios' %}">
+            <span class="material-icons-sharp">receipt_long</span>
+            <h3>Relatórios</h3>
+        </a>
+
+        <a href="{% url 'configuracoes' %}" class="{% active 'configuracoes' %}">
+            <span class="material-icons-sharp">settings</span>
+            <h3>Configurações</h3>
+        </a> {% endcomment %}
+
+        <a href="#">
+            <span class="material-icons-sharp">logout</span>
+            <h3>Sair</h3>
+        </a>
+    </div>
+</aside>

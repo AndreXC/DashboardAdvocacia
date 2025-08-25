@@ -7,16 +7,12 @@ from django.views.decorators.http import require_http_methods
 from .models import Customer, Service, Invoice, AreaDireito, CategoriaServico
 
 
-
 # View para renderizar a página principal
 def customer_dashboard(request):
     #categorias
     direitos = AreaDireito.objects.all()
-    return render(request, 'Clientes_painel/index.html', {'direitos': direitos})
+    return render(request, 'Clientes/Clientes.html', {'direitos': direitos})
 
-# =================================================================================
-# API VIEWS - Lógica para o JavaScript consumir
-# =================================================================================
 
 @require_http_methods(["GET", "POST"])
 def customer_list_create_api(request):

@@ -1,8 +1,7 @@
-# Clientes_painel/urls.py
-from django.urls import path
+from django.urls import path, include
 from . import views
 
-app_name = 'Clientes_painel'
+app_name = 'Clientes'
 
 urlpatterns = [
     # A página principal

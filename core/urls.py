@@ -20,5 +20,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('Clientes_painel.urls', namespace='Clientes_painel')), # Inclui as URLs do app crm
+    path('', include('Clientes.urls', namespace='Clientes')),
+    path('Contract/', include('Contract.urls', namespace='Contract')),
 ]
