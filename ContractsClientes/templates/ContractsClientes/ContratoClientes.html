@@ -4,20 +4,19 @@
 {% load static %}
 {% include "includes/header.html" %}
 <link rel="stylesheet" href="{% static 'Contract/css/style.css' %}">
+<link rel="stylesheet" href="{% static 'ContractsClientes/css/ContartoClientes.css' %}">
 
 <style>
     /* --- ESTILOS PARA A NOVA FUNCIONALIDADE --- */
 
     /* Estilo para a linha da tabela selecionada */
     tbody tr.selected {
-        background-color: #e0efff;
-        /* Cor de fundo azul claro */
-        box-shadow: inset 4px 0 0 0 #007bff;
-        /* Borda azul à esquerda */
+        background-color: #1f2937;
+
     }
 
     /* Garante que o cursor mude para indicar que a linha é clicável */
-    #template-list-tbody tr {
+    #contract-list-tbody tr {
         cursor: pointer;
     }
 
@@ -102,7 +101,7 @@
     <main class="main-content">
         <div class="content-container-app">
             <header>
-                <h1>Contratos</h1>
+                <h1>Acordos com Clientes</h1>
                 {% include "includes/theme.html" %}
             </header>
 
@@ -112,20 +111,54 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Modelos De Contratos</th>
-                            <!-- Coluna Ações foi removida -->
+                            <th>Cliente</th>
+                            <th>Modelo do Contrato</th>
+                            <th>Protocolo do Serviço</th>
+                            <th>Data de Criação</th>
+                            <th>Status</th>
+                            <th>Link de Assinatura</th>
                         </tr>
                     </thead>
-                    <tbody id="template-list-tbody">
-                        {% for template in templates %}
+                    <tbody id="contract-list-tbody">
+                        {% for contract in contracts %}
                         <!-- Adicionados os data-attributes para o JavaScript -->
-                        <tr data-pdf-url="#" data-edit-url="{% url 'Contract:edit' template.pk %}"
-                            data-delete-url="{% url 'Contract:delete' template.pk %}">
-                            <td>{{ template.title }}</td>
+                        <tr data-contract-id="{{ contract.id }}" data-status="{{ contract.status }}"
+                            data-pdf-url="{% if contract.status == 'SIGNED' %}{% url 'ContractsClientes:view_pdf' contract.id %}{% endif %}"
+                            data-sign-link="{{ request.scheme }}://{{ request.get_host }}{% url 'ContractsClientes:sign' contract.signature_link_id %}">
+
+                            <td>{{ contract.client.full_name }}</td>
+                            <td>{{ contract.template.title }}</td>
+                            <td>{{ contract.service.protocolo }}</td>
+                            <td>{{ contract.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if contract.status == 'SIGNED' %}
+                                <span class="status-badge status-signed">
+                                    <span class="status-dot"></span> Assinado
+                                </span>
+                                {% else %}
+                                <span class="status-badge status-pending">
+                                    <span class="status-dot"></span> Pendente
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if contract.status == 'PENDING' %}
+                                <div class="copy-link-wrapper">
+                                    <input type="text" class="link-input"
+                                        value="{{ request.scheme }}://{{ request.get_host }}{% url 'ContractsClientes:sign' contract.signature_link_id %}"
+                                        readonly>
+                                    <button type="button" class="copy-btn" title="Copiar link">
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
+                                </div>
+                                {% else %}
+                                Assinado
+                                {% endif %}
+                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="1" class="text-center">Nenhum modelo de contrato cadastrado.</td>
+                            <td colspan="5" class="text-center">Nenhum contrato gerado.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -144,24 +177,32 @@
                     </button>
                 </div>
 
-                <!-- Botão Adicionar Novo -->
-                <button id="add-new-Contrato" title="Adicionar Novo Contrato" class="fab">
+                <!-- Botão Adicionar Novo (substituído pelo seu) -->
+                <button id="add-new-Contrato-cliente" title="Adicionar Novo Contrato" class="fab">
                     <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
         </div>
     </main>
 
+    {% include "ContractsClientes/Modal/AddNewContratoCliente.html" %}
+
     {% block scripts %}
+    <script src="{% static 'ContractsClientes/js/ModalContractClientes.js' %}"></script>
+    <script src="{% static 'ContractsClientes/js/CopyLinkModalCliente.js' %}"></script>
     <script src="{% static 'resources/js/includes/theme.js' %}"></script>
+    <script src="{% static 'ContractsClientes/js/ModalSubmitCreateNewContrato.js' %}"></script>
+
+
     <script>
         // --- SCRIPT PARA A NOVA FUNCIONALIDADE DE AÇÕES ---
         document.addEventListener('DOMContentLoaded', function () {
-            const tableBody = document.getElementById('template-list-tbody');
+            const tableBody = document.getElementById('contract-list-tbody');
+            // Verifica se a tabela existe antes de adicionar listeners
             if (!tableBody) return;
 
             const rows = tableBody.querySelectorAll('tr');
-            const addFab = document.getElementById('add-new-Contrato');
+            const addFab = document.getElementById('add-new-Contrato-cliente');
             const actionsFabContainer = document.getElementById('actions-fab-container');
             const actionsFab = document.getElementById('actions-fab');
             const actionsMenu = document.getElementById('fab-actions-menu');
@@ -169,7 +210,8 @@
             let selectedRow = null;
 
             rows.forEach(row => {
-                if (row.querySelector('td[colspan="1"]')) return;
+                // Ignora a linha de "Nenhum contrato gerado"
+                if (row.querySelector('td[colspan="5"]')) return;
 
                 row.addEventListener('click', function () {
                     if (selectedRow === this) {
@@ -199,43 +241,56 @@
                 actionsFabContainer.style.display = 'block';
             }
 
-            // Listener para o botão de adicionar novo contrato
-            addFab.addEventListener('click', () => {
-                window.location.href = '{% url "Contract:ContractCreate" %}';
-            });
-
-            // Listener para abrir/fechar o menu de ações
             actionsFab.addEventListener('click', function (event) {
                 event.stopPropagation();
                 actionsMenu.classList.toggle('visible');
             });
 
-            // Listener para fechar o menu ao clicar fora
             document.addEventListener('click', function (event) {
+                // Fecha o menu se o clique for fora do container de ações
                 if (!actionsFabContainer.contains(event.target)) {
                     actionsMenu.classList.remove('visible');
                 }
             });
 
-            // Atualiza os botões de ação com base na linha selecionada
             function updateActionButtons(row) {
+                const status = row.dataset.status;
                 const pdfUrl = row.dataset.pdfUrl;
-                const editUrl = row.dataset.editUrl;
-                const deleteUrl = row.dataset.deleteUrl;
+                const signLink = row.dataset.signLink;
 
-                // Popula o menu com as ações, que são sempre as mesmas neste caso
-                actionsMenu.innerHTML = `
-                    <a href="${pdfUrl}" class="fab-action-item" title="Visualizar PDF">
-                        <i class="fas fa-file-pdf"></i>
-                    </a>
-                    <a href="${editUrl}" class="fab-action-item" title="Editar Modelo">
-                        <i class="fas fa-pencil-alt"></i>
-                    </a>
-                    <a href="${deleteUrl}" class="fab-action-item" title="Excluir Modelo">
-                        <i class="fas fa-trash-alt"></i>
-                    </a>
-                `;
+                actionsMenu.innerHTML = ''; // Limpa ações antigas
+
+                if (status === 'SIGNED') {
+                    actionsMenu.innerHTML = `
+                        <a href="${pdfUrl}" target="_blank" class="fab-action-item" title="Prévia do acordo em PDF">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </a>
+                        <button class="fab-action-item share-button" data-link="${signLink}" title="Compartilhe seu acordo agora">
+                            <i class="fa-solid fa-share-alt"></i>
+                        </button>
+                    `;
+                } else { // PENDING
+                    actionsMenu.innerHTML = `
+                        <a href="${signLink}" target="_blank" class="fab-action-item" title="Abrir link em nova guia">
+                            <i class="fa-solid fa-up-right-from-square"></i>
+                        </a>
+                    `;
+                }
             }
+
+            // Lógica para o botão de compartilhar
+            actionsMenu.addEventListener('click', function (event) {
+                const shareButton = event.target.closest('.share-button');
+                if (shareButton) {
+                    const link = shareButton.dataset.link;
+                    navigator.clipboard.writeText(link).then(() => {
+                        alert('Link copiado para a área de transferência!');
+                        actionsMenu.classList.remove('visible'); // Fecha o menu após copiar
+                    }).catch(err => {
+                        console.error('Erro ao copiar link: ', err);
+                    });
+                }
+            });
         });
     </script>
     {% endblock %}

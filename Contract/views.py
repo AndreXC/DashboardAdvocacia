@@ -114,3 +114,11 @@ def delete_template(request, pk):
         return redirect('Contract:list')
     # Use um template de confirmação para evitar exclusões acidentais
     return render(request, 'Contract/template_confirm_delete.html', {'template': template})
+
+
+
+def GetModelTemplates(request):
+    if request.method == 'GET':
+        templates = ContractTemplate.objects.all().order_by('-id').values()
+        return JsonResponse({'templates': list(templates)}, safe=False)
+    return JsonResponse({'error': 'Método não permitido'}, status=405)

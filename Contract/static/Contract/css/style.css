@@ -1,0 +1,73 @@
+.content-container-app {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+}
+
+
+
+/* Estrutura do Botão de Ação */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    /* Tamanho ideal para toque */
+    height: 44px;
+    border-radius: 50%;
+    text-decoration: none;
+    background-color: #ffffff;
+    /* Fundo branco */
+    border: 1px solid #dee2e6;
+    /* Borda sutil */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* Sombra inicial suave */
+
+    /* Transição suave para todas as propriedades */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.action-btn i {
+    font-size: 16px;
+    color: #6c757d;
+    /* Cor do ícone neutra */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Efeito HOVER (a mágica acontece aqui) */
+.action-btn:hover {
+    transform: translateY(-3px);
+    /* Efeito de elevação */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    /* Sombra mais pronunciada */
+}
+
+/* Cores específicas para cada ação no HOVER */
+.action-btn.edit:hover {
+    background-color: #e3f2fd;
+    /* Azul muito claro */
+    border-color: #90caf9;
+}
+
+.action-btn.edit:hover i {
+    color: #1565c0;
+    /* Azul sofisticado */
+}
+
+.action-btn.delete:hover {
+    background-color: #ffebee;
+    /* Vermelho muito claro */
+    border-color: #ef9a9a;
+}
+
+.action-btn.delete:hover i {
+    color: #c62828;
+    /* Vermelho sóbrio */
+}
+
+/* Efeito de FOCO para acessibilidade */
+.action-btn:focus-visible {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}

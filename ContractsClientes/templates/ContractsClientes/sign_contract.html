@@ -1,0 +1,674 @@
+<!-- <!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assinatura de Contrato</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e9ecef;
+        }
+
+        .contract-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, .1);
+        }
+
+        .contract-content {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-weight: 300;
+        }
+
+        /* Estilos para a área de assinatura e upload */
+        .signature-option {
+            border: 2px dashed #0d6efd;
+            border-radius: 5px;
+        }
+
+        #signature-pad {
+            cursor: crosshair;
+        }
+
+        .drag-drop-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            transition: background-color 0.3s ease;
+        }
+
+        .drag-drop-area.dragover {
+            background-color: #e2e6ea;
+            border-color: #0c5460;
+        }
+
+        .drag-drop-area p {
+            margin: 0;
+            color: #6c757d;
+        }
+
+        .drag-drop-area.active {
+            background-color: #fff;
+            border: 2px solid #28a745;
+        }
+
+        .drag-drop-area img {
+            max-width: 100%;
+            max-height: 100%;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="contract-container">
+        <div class="header">
+            <h1>🚀 ContractFlow</h1>
+            <p class="lead">Revisão e Assinatura do Contrato</p>
+        </div>
+
+        <h5 class="mb-3">Contrato</h5>
+        <div class="contract-content mb-4">
+            {{ contract_content|safe }}
+        </div>
+
+        <form method="post" id="signature-form">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label fw-bold">1. Escolha como assinar:</label>
+
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="draw-tab" data-bs-toggle="pill" data-bs-target="#draw-pane"
+                            type="button" role="tab" aria-controls="draw-pane" aria-selected="true">Desenhar</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upload-tab" data-bs-toggle="pill" data-bs-target="#upload-pane"
+                            type="button" role="tab" aria-controls="upload-pane" aria-selected="false">Carregar
+                            Imagem</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="draw-pane" role="tabpanel" aria-labelledby="draw-tab">
+                        <div class="wrapper signature-option">
+                            <canvas id="signature-pad" width="720" height="200"></canvas>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-secondary mt-2" id="clear-signature">Limpar</button>
+                    </div>
+                    <div class="tab-pane fade" id="upload-pane" role="tabpanel" aria-labelledby="upload-tab">
+                        <div id="drag-drop-area" class="drag-drop-area signature-option">
+                            <input type="file" id="file-input" accept="image/*" class="d-none">
+                            <p>Arraste e solte sua assinatura aqui ou clique para selecionar</p>
+                        </div>
+                        <div id="uploaded-image-preview" class="mt-2 d-none">
+                            <img id="preview-img" class="img-fluid" alt="Pré-visualização da assinatura">
+                            <button type="button" class="btn btn-sm btn-danger mt-2" id="remove-file">Remover</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" value="" id="terms-checkbox">
+                <label class="form-check-label fw-bold" for="terms-checkbox">
+                    2. Li e aceito os termos deste contrato.
+                </label>
+            </div>
+
+            <input type="hidden" name="signature" id="signature-data">
+            <input type="hidden" name="signature_type" id="signature-type">
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg" id="submit-button" disabled>Assinar
+                    Contrato</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script>
+        // Elementos do DOM
+        const canvas = document.getElementById('signature-pad');
+        const signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)'
+        });
+        const clearButton = document.getElementById('clear-signature');
+        const submitButton = document.getElementById('submit-button');
+        const checkbox = document.getElementById('terms-checkbox');
+        const signatureDataInput = document.getElementById('signature-data');
+        const signatureTypeInput = document.getElementById('signature-type');
+        const form = document.getElementById('signature-form');
+        const drawTab = document.getElementById('draw-tab');
+        const uploadTab = document.getElementById('upload-tab');
+
+        // Elementos do Drag-and-Drop
+        const dragDropArea = document.getElementById('drag-drop-area');
+        const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('uploaded-image-preview');
+        const previewImg = document.getElementById('preview-img');
+        const removeFileButton = document.getElementById('remove-file');
+
+        let uploadedFile = null;
+
+        // Funções de validação e estado do formulário
+        function checkFormState() {
+            const signaturePresent = !signaturePad.isEmpty() || uploadedFile;
+            submitButton.disabled = !(signaturePresent && checkbox.checked);
+        }
+
+        function clearUploadArea() {
+            uploadedFile = null;
+            previewImg.src = '';
+            previewContainer.classList.add('d-none');
+            dragDropArea.classList.remove('d-none');
+            checkFormState();
+        }
+
+        // Event Listeners para a assinatura no canvas
+        clearButton.addEventListener('click', () => {
+            signaturePad.clear();
+            checkFormState();
+        });
+        canvas.addEventListener('mouseup', checkFormState);
+        canvas.addEventListener('touchend', checkFormState);
+
+        // Event Listeners para o checkbox
+        checkbox.addEventListener('change', checkFormState);
+
+        // Event Listeners para as abas (tabs)
+        drawTab.addEventListener('click', () => {
+            clearUploadArea();
+        });
+
+        uploadTab.addEventListener('click', () => {
+            signaturePad.clear();
+            checkFormState();
+        });
+
+        // Event Listeners para o Drag-and-Drop
+        dragDropArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        dragDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragDropArea.classList.add('dragover');
+        });
+
+        dragDropArea.addEventListener('dragleave', () => {
+            dragDropArea.classList.remove('dragover');
+        });
+
+        dragDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragDropArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        removeFileButton.addEventListener('click', clearUploadArea);
+
+        function handleFile(file) {
+            if (file.type.startsWith('image/')) {
+                uploadedFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    previewContainer.classList.remove('d-none');
+                    dragDropArea.classList.add('d-none');
+                    checkFormState();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Lógica de envio do formulário
+        form.addEventListener('submit', (event) => {
+            if (!checkbox.checked) {
+                alert("Por favor, leia e aceite os termos do contrato.");
+                event.preventDefault();
+                return;
+            }
+
+            if (!signaturePad.isEmpty()) {
+                const dataURL = signaturePad.toDataURL('image/png');
+                signatureDataInput.value = dataURL;
+                signatureTypeInput.value = 'drawn';
+            } else if (uploadedFile) {
+                // Para enviar um arquivo via AJAX, você precisaria de um FormData.
+                // Como o form está sendo enviado via POST padrão,
+                // vamos converter a imagem para base64 para enviar como texto.
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    signatureDataInput.value = e.target.result;
+                    signatureTypeInput.value = 'uploaded';
+                    form.submit(); // Envia o formulário após a leitura do arquivo
+                };
+                reader.readAsDataURL(uploadedFile);
+                event.preventDefault(); // Impede o envio imediato, espera o FileReader
+            } else {
+                alert("Por favor, forneça sua assinatura.");
+                event.preventDefault();
+            }
+        });
+
+        // Chamada inicial para verificar o estado do botão
+        checkFormState();
+    </script>
+</body>
+
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assinatura de Contrato</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e9ecef;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .contract-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .contract-content {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-weight: 400;
+            color: #343a40;
+        }
+
+        /* Estilos para a área de assinatura e upload */
+        .signature-option {
+            border: 2px dashed #0d6efd;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        #signature-pad {
+            cursor: crosshair;
+        }
+
+        .drag-drop-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .drag-drop-area.dragover {
+            background-color: #eaf3ff;
+            border-color: #0d6efd;
+        }
+
+        .drag-drop-area p {
+            margin: 0;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .drag-drop-area.active {
+            background-color: #fff;
+            border: 2px solid #28a745;
+        }
+
+        .drag-drop-area img {
+            max-width: 100%;
+            max-height: 100%;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        /* Estilos dos botões inspirados em React Native */
+        .btn {
+            border: none;
+            border-radius: 50px;
+            /* Bordas arredondadas para um visual suave */
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.4);
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            transform: translateY(-2px);
+            /* Efeito de elevação sutil */
+            box-shadow: 0 6px 20px rgba(13, 110, 253, 0.5);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background-color: #5c636a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.5);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5);
+        }
+
+        .btn-lg {
+            padding: 16px 32px;
+            font-size: 1.25rem;
+        }
+
+        /* Estilos para os botões da aba (nav-pills) */
+        .nav-pills .nav-link {
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-weight: 600;
+            color: #495057;
+            background-color: #e9ecef;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .nav-pills .nav-link:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Estilo para botão desabilitado */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="contract-container">
+        <div class="header">
+            <h1>🚀 ContractFlow</h1>
+            <p class="lead">Revisão e Assinatura do Contrato</p>
+        </div>
+
+        <h5 class="mb-3">Contrato</h5>
+        <div class="contract-content mb-4">
+            {{ contract_content|safe }}
+        </div>
+
+        <form method="post" id="signature-form">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label fw-bold">1. Escolha como assinar:</label>
+
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="draw-tab" data-bs-toggle="pill" data-bs-target="#draw-pane"
+                            type="button" role="tab" aria-controls="draw-pane" aria-selected="true">Assinatura
+                            Digital</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upload-tab" data-bs-toggle="pill" data-bs-target="#upload-pane"
+                            type="button" role="tab" aria-controls="upload-pane" aria-selected="false">Carregar
+                            Assinatura</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="draw-pane" role="tabpanel" aria-labelledby="draw-tab">
+                        <div class="wrapper signature-option">
+                            <canvas id="signature-pad" width="700" height="200"></canvas>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm mt-2" id="clear-signature">Limpar</button>
+                    </div>
+                    <div class="tab-pane fade" id="upload-pane" role="tabpanel" aria-labelledby="upload-tab">
+                        <div id="drag-drop-area" class="drag-drop-area signature-option">
+                            <input type="file" id="file-input" accept="image/*" class="d-none">
+                            <p>Arraste e solte sua assinatura aqui ou clique para selecionar</p>
+                        </div>
+                        <div id="uploaded-image-preview" class="mt-2 d-none">
+                            <img id="preview-img" class="img-fluid" alt="Pré-visualização da assinatura">
+                            <button type="button" class="btn btn-danger btn-sm mt-2" id="remove-file">Remover</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" value="" id="terms-checkbox">
+                <label class="form-check-label fw-bold" for="terms-checkbox">
+                    2. Li e aceito os termos deste contrato.
+                </label>
+            </div>
+
+            <input type="hidden" name="signature" id="signature-data">
+            <input type="hidden" name="signature_type" id="signature-type">
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg" id="submit-button" disabled>Assinar
+                    Contrato</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script>
+        // Elementos do DOM
+        const canvas = document.getElementById('signature-pad');
+        const signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)'
+        });
+        const clearButton = document.getElementById('clear-signature');
+        const submitButton = document.getElementById('submit-button');
+        const checkbox = document.getElementById('terms-checkbox');
+        const signatureDataInput = document.getElementById('signature-data');
+        const signatureTypeInput = document.getElementById('signature-type');
+        const form = document.getElementById('signature-form');
+        const drawTab = document.getElementById('draw-tab');
+        const uploadTab = document.getElementById('upload-tab');
+
+        // Elementos do Drag-and-Drop
+        const dragDropArea = document.getElementById('drag-drop-area');
+        const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('uploaded-image-preview');
+        const previewImg = document.getElementById('preview-img');
+        const removeFileButton = document.getElementById('remove-file');
+
+        let uploadedFile = null;
+
+        // Funções de validação e estado do formulário
+        function checkFormState() {
+            const signaturePresent = !signaturePad.isEmpty() || uploadedFile;
+            submitButton.disabled = !(signaturePresent && checkbox.checked);
+        }
+
+        function clearUploadArea() {
+            uploadedFile = null;
+            previewImg.src = '';
+            previewContainer.classList.add('d-none');
+            dragDropArea.classList.remove('d-none');
+            checkFormState();
+        }
+
+        // Event Listeners para a assinatura no canvas
+        clearButton.addEventListener('click', () => {
+            signaturePad.clear();
+            checkFormState();
+        });
+        canvas.addEventListener('mouseup', checkFormState);
+        canvas.addEventListener('touchend', checkFormState);
+        canvas.addEventListener('mousedown', () => {
+            if (uploadedFile) {
+                clearUploadArea();
+            }
+        });
+
+        // Event Listeners para o checkbox
+        checkbox.addEventListener('change', checkFormState);
+
+        // Event Listeners para as abas (tabs)
+        drawTab.addEventListener('click', () => {
+            clearUploadArea();
+            checkFormState();
+        });
+
+        uploadTab.addEventListener('click', () => {
+            signaturePad.clear();
+            checkFormState();
+        });
+
+        // Event Listeners para o Drag-and-Drop
+        dragDropArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        dragDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragDropArea.classList.add('dragover');
+        });
+
+        dragDropArea.addEventListener('dragleave', () => {
+            dragDropArea.classList.remove('dragover');
+        });
+
+        dragDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragDropArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        removeFileButton.addEventListener('click', clearUploadArea);
+
+        function handleFile(file) {
+            if (file.type.startsWith('image/')) {
+                uploadedFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    previewContainer.classList.remove('d-none');
+                    dragDropArea.classList.add('d-none');
+                    checkFormState();
+                };
+                reader.readAsDataURL(file);
+                signaturePad.clear(); // Limpa o canvas se uma imagem for carregada
+            }
+        }
+
+        // Lógica de envio do formulário
+        form.addEventListener('submit', (event) => {
+            if (!checkbox.checked) {
+                alert("Por favor, leia e aceite os termos do contrato.");
+                event.preventDefault();
+                return;
+            }
+
+            if (!signaturePad.isEmpty()) {
+                const dataURL = signaturePad.toDataURL('image/png');
+                signatureDataInput.value = dataURL;
+                signatureTypeInput.value = 'drawn';
+            } else if (uploadedFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    signatureDataInput.value = e.target.result;
+                    signatureTypeInput.value = 'uploaded';
+                    form.submit();
+                };
+                reader.readAsDataURL(uploadedFile);
+                event.preventDefault();
+            } else {
+                alert("Por favor, forneça sua assinatura.");
+                event.preventDefault();
+            }
+        });
+
+        // Chamada inicial para verificar o estado do botão
+        checkFormState();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+{% block title %}Gerar Contrato{% endblock %}
+
+{% block content %}
+<h1>Gerar Novo Contrato</h1>
+<p class="text-muted">Selecione um cliente e um modelo para gerar o link de assinatura.</p>
+<div class="card p-4">
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Cliente</label>
+            {{ form.client }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Modelo de Contrato</label>
+            {{ form.template }}
+        </div>
+        <button type="submit" class="btn btn-success">Gerar Contrato</button>
+    </form>
+</div>
+{% endblock %}

@@ -20,15 +20,11 @@
             <h3>Clientes</h3>
         </a>
 
-        {% comment %} <a href="{% url 'relatorios' %}" class="{% active 'relatorios' %}">
-            <span class="material-icons-sharp">receipt_long</span>
-            <h3>Relatórios</h3>
+        <a href="{% url 'ContractsClientes:ContractsClientes' %}"
+            class="{% active_link 'ContractsClientes:ContractsClientes' %}">
+            <span class="material-icons-sharp">description</span>
+            <h3>Acordos</h3>
         </a>
-
-        <a href="{% url 'configuracoes' %}" class="{% active 'configuracoes' %}">
-            <span class="material-icons-sharp">settings</span>
-            <h3>Configurações</h3>
-        </a> {% endcomment %}
 
         <a href="#">
             <span class="material-icons-sharp">logout</span>

@@ -9,4 +9,5 @@ urlpatterns = [
     path('edit/<int:pk>/', views.contract_editor_view, name='edit'),
     path('delete/<int:pk>/', views.delete_template, name='delete'),
     path('api/save_contract/', views.save_contract_api, name='save_contract_api'),
+    path('api/get_model_templates/', views.GetModelTemplates, name='get_model_templates'),
 ]

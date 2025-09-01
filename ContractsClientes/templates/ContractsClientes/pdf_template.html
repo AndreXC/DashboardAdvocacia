@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Contrato</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+
+        body {
+            font-family: 'Helvetica', sans-serif;
+            font-size: 12pt;
+            line-height: 1.5;
+        }
+
+        .signature-block {
+            margin-top: 80px;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #000;
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        .signature-image {
+            max-width: 250px;
+            max-height: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        {{ content|safe }}
+    </div>
+
+    <div class="signature-block">
+        <img src="{{ signature_uri }}" alt="Assinatura" class="signature-image">
+        <div class="signature-line"></div>
+        <p>{{ client_name }}<br>{{ client_cpf }} <br> Protocolo do Contrato: {{ protocol_number }} <br>Assinado em: {{ signed_date }} </p>
+    </div>
+</body>
+
+</html>

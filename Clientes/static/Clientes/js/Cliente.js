@@ -45,6 +45,177 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
 
 
+
+    const newContractFormCliente = document.getElementById('create-contract-form');
+    const newContractBtn = document.getElementById('add-new-contract-btn');
+    const newContractModal = document.getElementById('create-contract-modal');
+    const newContractTemplateSelect = document.getElementById('id_template_select');
+    const newContractServiceSelect = document.getElementById('id_service_select');
+    const closeNewContractModalBtn = document.getElementById('cancel-new-contract-btn');
+    const cancelNewContractBtn = document.querySelector('.cancel-btn');
+    const SelectClientEstrutura = document.getElementById('id_client_select');
+    const TituloAddNewContrato = document.getElementById('TituloAddContractCliente');
+
+
+
+    /////functions open modal CreateNewContract
+
+    function closeNewContractModal() {
+            newContractModal.style.display = 'none';
+        }
+
+    // Função para abrir o modal e iniciar o preenchimento dinâmico com um ClientId específico
+    function openNewContractModal(costumer) {
+                newContractModal.style.display = 'flex';
+                if (costumer) {
+                    TituloAddNewContrato.textContent = `Gerar Novo Contrato para ${costumer.firstName} ${costumer.lastName}`;
+                    SelectClientEstrutura.innerHTML = `<option value="${costumer.id}">${costumer.firstName} ${costumer.lastName}</option>`;
+                    SelectClientEstrutura.value = costumer.id;
+            
+                    // Aciona o carregamento dos serviços
+                    loadNewContractServices(costumer.id);
+                    LoadModelContracts();
+                }
+            }
+
+
+
+        closeNewContractModalBtn.addEventListener('click', closeNewContractModal);
+        cancelNewContractBtn.addEventListener('click', closeNewContractModal);
+
+        // Fecha o modal se o usuário clicar fora dele
+        window.onclick = function(event) {
+            if (event.target == newContractModal) {
+                closeNewContractModal();
+            }
+        };
+
+
+
+      function LoadModelContracts() {
+        // Limpa e desabilita o campo de modelo enquanto carrega
+        newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Carregando...</option>';
+        newContractTemplateSelect.disabled = true;
+
+        const url = `Contract/api/get_model_templates/`;
+
+        fetch(url)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Erro na resposta da rede: ' + response.statusText);
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Limpa as opções antes de preencher
+            newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Selecione um modelo</option>';
+
+            if (data.templates && data.templates.length > 0) {
+              data.templates.forEach(template => {
+                console.log(template);
+                newContractTemplateSelect.innerHTML += `<option value="${template.id}">${template.title}</option>`;
+              });
+              newContractTemplateSelect.disabled = false;
+            } else {
+              newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Nenhum modelo encontrado</option>';
+            }
+          })
+          .catch(error => {
+            console.error('Erro ao buscar modelos:', error);
+            newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Erro ao carregar modelos</option>';
+          });
+      }
+
+      function loadNewContractServices(clientId) {
+                // Limpa e desabilita o campo de serviço enquanto carrega
+                newContractServiceSelect.innerHTML = '<option value="" disabled selected>Carregando...</option>';
+                newContractServiceSelect.disabled = true;
+
+                // Aqui simulamos a chamada API. Use a URL real do seu Django.
+                const url = `/ContractsClientes/api/services-by-client/${clientId}/`;
+                // const url = `{% url 'api_services_by_client' 0 %}`.replace('0', clientId);
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erro na resposta da rede: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Limpa as opções antes de preencher
+                        newContractServiceSelect.innerHTML = '<option value="" disabled selected>Selecione um Protocolo de Serviço</option>';
+                        
+                        if (data.services && data.services.length > 0) {
+                            data.services.forEach(service => {
+                                newContractServiceSelect.innerHTML += `<option value="${service.id}">${service.text}</option>`;
+                            });
+                            newContractServiceSelect.disabled = false;
+                        } else {
+                            newContractServiceSelect.innerHTML = '<option value="" disabled selected>Nenhum serviço ativo encontrado</option>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao buscar serviços:', error);
+                        newContractServiceSelect.innerHTML = '<option value="" disabled selected>Erro ao carregar serviços</option>';
+                    });
+            }
+
+
+          async function submitNewContractForm(event) {
+                event.preventDefault(); // Impede o envio padrão do formulário
+
+                // Coleta os valores dos campos
+                const clientId = SelectClientEstrutura.value;
+                const serviceId = newContractServiceSelect.value;
+                const templateId = newContractTemplateSelect.value;
+
+                const formData = {
+                    client: clientId,
+                    service: serviceId,
+                    template: templateId, 
+                };
+                
+
+                console.log(formData)
+                const url = '/ContractsClientes/create/';
+                const csrfToken = getCsrfToken();
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: JSON.stringify(formData),
+                    });
+
+                    const data = await response.json();
+
+                    // Verifica a resposta e mostra o resultado
+                    if (data.success) {
+                        alert('Contrato gerado com sucesso!'); // Usar um modal personalizado em produção
+                        closeNewContractModal();
+                    } else {
+                        // Exibe os erros na tela
+                        const errorDiv = document.getElementById('form-errors');
+                        errorDiv.innerHTML = ''; // Limpa erros anteriores
+                        for (const field in data.errors) {
+                            data.errors[field].forEach(error => {
+                                const p = document.createElement('p');
+                                p.textContent = `${field}: ${error.message}`;
+                                errorDiv.appendChild(p);
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro no envio do formulário:', error);
+                    alert('Erro ao gerar o contrato. Tente novamente.');
+                }
+            }
+
+            newContractFormCliente.addEventListener('submit', submitNewContractForm);
+
     // =================================================================================
     // FUNÇÕES AUXILIARES E API
     // =================================================================================
@@ -144,7 +315,9 @@ document.addEventListener('DOMContentLoaded', () => {
             row.className = service.id === currentServiceId ? 'selected' : '';
             const statusClass = service.status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             row.innerHTML = `
-                <td class="service-name-cell">${service.name}</td>
+                <td class="service-name-cell">${service.nomeServico}</td>
+                <td>${service.protocolo || '-'}</td> 
+                <td>${service.areaDireito || '-'}</td>
                 <td>
                     <select class="status-select status-${statusClass}" data-entity="service" data-id="${service.id}">
                         <option value="Ativo" ${service.status === 'Ativo' ? 'selected' : ''}>Ativo</option>
@@ -211,6 +384,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isEditMode) await exitEditMode(false, customer);
             currentCustomerId = customer.id;
 
+
+            const contracts = await apiRequest(`/api/customers/${customerId}/contracts/`);
+
+
             // Atualiza a classe 'selected' na lista
             document.querySelectorAll('#customer-list-tbody tr').forEach(row => {
                 row.classList.toggle('selected', row.dataset.customerId == customer.id);
@@ -220,8 +397,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('customer-photo').src = customer.photoUrl || 'https://via.placeholder.com/80';
             document.getElementById('customer-fullname').textContent = `${customer.firstName} ${customer.lastName}`;
 
+
             renderInfoFields(customer, false);
             renderServicesList(customer.services);
+            renderContractsList(contracts);
+            newContractBtn.addEventListener('click', () => {
+                openNewContractModal(customer);
+            });
 
             switchTab('info');
             serviceInvoicesSection.classList.add('hidden');
@@ -240,7 +422,72 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(`tab-content-${tabId}`).classList.add('active');
         document.querySelector(`.tab-link[data-tab="${tabId}"]`).classList.add('active');
     };
+    
 
+
+    // const renderContractsList = (contracts) => {
+    //     const contractsTbody = document.getElementById('contracts-tbody');
+    //     contractsTbody.innerHTML = '';
+
+    //     if (contracts.length > 0) { 
+
+    //     contracts.forEach(contract => {
+    //         const row = document.createElement('tr');
+    //         row.dataset.contractId = contract.id;
+    //         row.innerHTML = `
+    //             <td>${contract.template}</td>
+    //             <td>${contract.status}</td>
+    //             <td>${new Date(contract.createdAt).toLocaleDateString()}</td>
+    //         `;
+    //         contractsTbody.appendChild(row);
+    //     });
+    //     } else {
+    //         const row = document.createElement('tr');
+    //         row.innerHTML = `<td colspan="3">Nenhum contrato encontrado.</td>`;
+    //         contractsTbody.appendChild(row);
+    //     }
+    // };
+
+    /**
+     * Renderiza a lista de contratos no painel de detalhes do cliente.
+     * @param {Array} contracts - Array de objetos de contrato.
+     */
+    const renderContractsList = (contracts) => {
+        const contractsTbody = document.getElementById('contracts-tbody');
+        contractsTbody.innerHTML = ''; // Limpa a tabela antes de adicionar as novas linhas
+
+        if (contracts && contracts.length > 0) {
+            contracts.forEach(contract => {
+                const row = document.createElement('tr');
+                row.dataset.contractId = contract.id;
+
+                // --- MELHORIA: Lógica para criar os botões de Ação ---
+                let actionsHtml = '';
+                // Usamos o 'statusCode' para a lógica e 'status' para exibição
+                if (contract.statusCode === 'PENDING' && contract.signingUrl) {
+                    actionsHtml = `<a href="${contract.signingUrl}" class="button-primary" target="_blank">Assinar</a>`;
+                } else if (contract.statusCode === 'SIGNED' && contract.pdfUrl) {
+                    actionsHtml = `<a href="${contract.pdfUrl}" class="button-secondary" target="_blank">Ver PDF</a>`;
+                } else {
+                    actionsHtml = '<span>-</span>'; // Nenhuma ação disponível
+                }
+
+                // --- CORREÇÃO: Colunas sincronizadas com o HTML e usando os dados da API ---
+                row.innerHTML = `
+                    <td>${contract.template}</td>
+                    <td>${contract.status}</td>
+                    <td>${contract.createdAt}</td>
+                    <td>${actionsHtml}</td>
+                `;
+                contractsTbody.appendChild(row);
+            });
+        } else {
+            const row = document.createElement('tr');
+            // O colspan foi atualizado para 4, correspondendo ao número de colunas
+            row.innerHTML = `<td colspan="4" style="text-align: center;">Nenhum contrato encontrado.</td>`;
+            contractsTbody.appendChild(row);
+        }
+    };
 
     // =================================================================================
     // LÓGICA DE EDIÇÃO E EXCLUSÃO (com chamadas de API)
@@ -403,15 +650,18 @@ document.addEventListener('DOMContentLoaded', () => {
             name: document.getElementById('serviceName').value,
             description: document.getElementById('serviceDescription').value,
             paymentType: paymentTypeSelect.value,
-            firstPaymentDate: firstPaymentDateInput.value,
-            totalValue: parseFloat(document.getElementById('serviceValue').value),
+            firstPaymentDate: firstPaymentDateInput.value, // <-- Aqui
+            protocolo: document.getElementById('ServiceProtocolo').value,
+            area_direito: parseInt(document.getElementById('AreaDireitoAdmin').value, 10) || null,
+            totalValue: parseFloat(document.getElementById('serviceValue').value), // <-- Aqui
             entryValue: parseFloat(document.getElementById('serviceEntryValue').value) || 0,
-            installments: parseInt(document.getElementById('serviceInstallments').value, 10),
+            installments: parseInt(document.getElementById('serviceInstallments').value, 10), // <-- Aqui
             interest: parseFloat(document.getElementById('serviceInterest').value) || 0,
         };
         if (!serviceData.firstPaymentDate) return showAlert('Por favor, informe a data do primeiro pagamento.');
 
         try {
+            console.log(serviceData);
             await apiRequest(`/api/customers/${currentCustomerId}/services/`, 'POST', serviceData);
             await displayCustomerDetails(currentCustomerId);
             closeModal(serviceModal);

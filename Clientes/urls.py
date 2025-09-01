@@ -13,8 +13,10 @@ urlpatterns = [
     
     # API para Serviços
     path('api/customers/<int:customer_pk>/services/', views.service_create_api, name='api_service_create'),
+    path('api/customers/<int:customer_id>/contracts/', views.contract_list_api, name='api_contract_list'),
     path('api/services/<int:pk>/', views.service_detail_api, name='api_service_detail'),
     
     # API para Faturas (apenas para atualizar status)
     path('api/invoices/<int:pk>/', views.invoice_detail_api, name='api_invoice_detail'),
+    
 ]

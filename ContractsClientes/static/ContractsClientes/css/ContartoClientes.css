@@ -1,0 +1,117 @@
+.text-muted {
+    color: var(--color-h2);
+}
+
+option {
+    color: var(--color-h2);
+}
+
+.SelectedItemModal {
+    color: var(--color-h2);
+}
+
+
+/* Estilo para o componente de copiar link */
+.copy-link-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #f0f2f5;
+    /* Cor de fundo suave */
+    border: 1px solid #dde1e7;
+    border-radius: 8px;
+    padding: 2px 4px;
+    transition: all 0.2s ease-in-out;
+    max-width: 280px;
+    /* Ajuste conforme necessário */
+}
+
+.copy-link-wrapper:hover {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+}
+
+.link-input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    color: #555;
+    /* Evita o anel de foco azul padrão no input */
+    outline: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Adiciona "..." se o texto for muito longo */
+}
+
+.copy-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+    color: #6c757d;
+    transition: background-color 0.2s ease;
+}
+
+.copy-btn:hover {
+    background-color: #e2e6ea;
+    color: #343a40;
+}
+
+.copy-btn i.fa-check {
+    color: #28a745;
+    /* Cor verde para o ícone de sucesso */
+}
+
+
+/* Estilo para o Badge de Status */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 16px;
+    /* Bordas arredondadas */
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+/* Estilo para status 'Assinado' */
+.status-badge.status-signed {
+    background-color: #e7f5ec;
+    /* Fundo verde claro */
+    color: #1d7b47;
+    /* Texto verde escuro */
+}
+
+.status-badge.status-signed .status-dot {
+    background-color: #28a745;
+    /* Círculo verde sólido */
+}
+
+/* Estilo para status 'Pendente' */
+.status-badge.status-pending {
+    background-color: #fff8e1;
+    /* Fundo amarelo claro */
+    color: #b58c00;
+    /* Texto amarelo escuro */
+}
+
+.status-badge.status-pending .status-dot {
+    background-color: #ffc107;
+    /* Círculo amarelo sólido */
+}
+
+    
+.form-group.floating-label label {
+top:-0.15rem!important ;
+}

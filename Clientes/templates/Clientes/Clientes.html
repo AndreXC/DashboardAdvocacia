@@ -89,7 +89,9 @@
                         <table class="services-table">
                             <thead>
                                 <tr>
-                                    <th>Descrição</th>
+                                    <th>Nome do Serviço</th>
+                                    <th>Protocolo</th>
+                                    <th>Área do Direito</th>
                                     <th>Status</th>
                                     <th>Valor</th>
                                 </tr>
@@ -129,7 +131,7 @@
                                 Adicionar Contrato
                             </button>
                         </div>
-                        <table class="contracts-table">
+                        {% comment %} <table class="contracts-table">
                             <thead>
                                 <tr>
                                     <th>Descrição</th>
@@ -138,7 +140,18 @@
                                 </tr>
                             </thead>
                             <tbody id="contracts-tbody"></tbody>
-                        </table>
+                        </table> {% endcomment %}
+                    <table class="contracts-table">
+                        <thead>
+                            <tr>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Data de Criação</th>
+                                <th>Ações</th> </tr>
+                        </thead>
+                        <tbody id="contracts-tbody">
+                            </tbody>
+                    </table>
                     </div>
                 </div>
             </div>
@@ -158,7 +171,12 @@
 
         {% include "Clientes/Modal/Delete_cliente.html" %}
 
+        {%include "ContractsClientes/Modal/AddNewContratoCliente.html" %}
+
+        
         {% include "includes/ModalErro.html" %}
+
+
 
 
 

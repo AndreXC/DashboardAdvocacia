@@ -17,9 +17,9 @@ Including another URLconf
 # painel_clientes/urls.py
 from django.contrib import admin
 from django.urls import path, include
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('Clientes.urls', namespace='Clientes')),
     path('Contract/', include('Contract.urls', namespace='Contract')),
+    path('ContractsClientes/', include('ContractsClientes.urls', namespace='ContractsClientes')),
 ]

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+{% load static %}
+{% include "includes/header.html" %}
+<link rel="stylesheet" href="{% static 'Contract/css/style.css' %}">
+
+<body>
+    {% include "includes/sidebar.html" %}
+
+    <main class="main-content">
+        <div class="content-container-app">
+            <header>
+                <h1>Contratos</h1>
+                {% include "includes/theme.html" %}
+            </header>
+            <!-- {% csrf_token %} -->
+            {% include "includes/search.html" %}
+            <div class="table-container" style="width: 100% !important;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Modelos De Contratos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customer-list-tbody"></tbody>
+                    {% for template in templates %}
+                    <td>{{ template.title }}</td>
+                    <td>
+                        <div>
+                            <a href="#" class="action-btn edit" aria-label="PDF">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                            <a href="{% url 'Contract:edit' template.pk %}" class="action-btn edit" aria-label="Editar">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="{% url 'Contract:delete' template.pk %}" class="action-btn delete"
+                                aria-label="Excluir">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
+                    </td>
+                    {% empty %}
+                    <td colspan="2">Nenhum modelo de contrato cadastrado.</td>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div class="fixed bottom-8 right-8">
+                <button id="add-new-Contrato" title="Adicionar Novo Contrato"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-2xl"></i>
+                </button>
+            </div>
+    </main>
+
+    {% block scripts %}
+    <script src="{% static 'resources/js/includes/theme.js' %}"></script>
+    <script>
+        const button = document.getElementById('add-new-Contrato')
+        if (button) {
+            button.addEventListener('click', () => {
+                window.location.href = '{% url "Contract:ContractCreate" %}';
+            });
+        }
+    </script>
+
+    {% endblock %}
+
+</body>
+
+</html>
