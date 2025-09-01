@@ -25,7 +25,7 @@ logs/
 
 # Arquivos de migração (opcional, só se quiser ignorar)
 # **Normalmente é bom versionar migrações, mas você pode ignorar em testes**
-#migrations/
+migrations/
 
 # Arquivos compilados / temporários
 *.mo
@@ -57,3 +57,6 @@ htmlcov/
 *.pid
 *.seed
 *.pid.lock
+
+
+
