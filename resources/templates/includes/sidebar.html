@@ -1,34 +1,52 @@
 {% load active_link %}
-<aside>
-    <div class="top">
+<aside class="collapsed">
+    <div class="logo-header">
         <div class="logo">
-            <h2>Juri<span class="primary">Dash</span></h2>
+            <span class="material-icons-sharp logo-icon">insights</span>
+            <div class="logo-name">JuriDash</div>
         </div>
-        <div class="close" id="close-btn">
-            <span class="material-icons-sharp">close</span>
-        </div>
+        <span class="material-icons-sharp" id="toggle-btn">chevron_left</span>
     </div>
 
-    <div class="sidebar">
-        <a href="{% url 'Clientes:dashboard' %}" class="{% active_link 'Clientes:dashboard' %}">
-            <span class="material-icons-sharp">grid_view</span>
-            <h3>Dashboard</h3>
-        </a>
+    <ul class="nav-list">
+        <li>
+            <a href="{% url 'Clientes:dashboard' %}" class="{% active_link 'Clientes:dashboard' %}">
+                <span class="material-icons-sharp">grid_view</span>
+                <span class="link-name">Dashboard</span>
+            </a>
+            <span class="tooltip">Dashboard</span>
+        </li>
 
-        <a href="{% url 'Contract:Contract' %}" class="{% active_link 'Contract:Contract' %}">
-            <span class="material-icons-sharp">person_outline</span>
-            <h3>Clientes</h3>
-        </a>
+        <li class="has-submenu">
+            <a href="#">
+                <span class="material-icons-sharp">group</span>
+                <span class="link-name">Cadastros</span>
+                <span class="material-icons-sharp arrow">expand_more</span>
+            </a>
+            <div class="submenu-wrapper">
+                    <ul class="submenu">
+                        <li>
+                            <a href="{% url 'Contract:Contract' %}" class="{% active_link 'Contract:Contract' %}">
+                                <span class="material-icons-sharp">person_outline</span>
+                                <span class="link-name">Clientes</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'ContractsClientes:ContractsClientes' %}"
+                                class="{% active_link 'ContractsClientes:ContractsClientes' %}">
+                                <span class="material-icons-sharp">description</span>
+                                <span class="link-name">Acordos</span>
+                            </a>
+                        </li>
+                    </ul>
+            </div>
+        </li>
 
-        <a href="{% url 'ContractsClientes:ContractsClientes' %}"
-            class="{% active_link 'ContractsClientes:ContractsClientes' %}">
-            <span class="material-icons-sharp">description</span>
-            <h3>Acordos</h3>
-        </a>
-
-        <a href="#">
-            <span class="material-icons-sharp">logout</span>
-            <h3>Sair</h3>
-        </a>
-    </div>
+        <li class="profile">
+            <a href="#">
+                <span class="material-icons-sharp">logout</span>
+                <span class="link-name">Sair</span>
+            </a>
+        </li>
+    </ul>
 </aside>

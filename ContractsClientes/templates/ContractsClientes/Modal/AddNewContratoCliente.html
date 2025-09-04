@@ -36,16 +36,17 @@
                     <label for="{{ form.template.id_for_label }}">Modelo de Contrato</label>
                 </div>
 
-              <div class="form-group floating-label">
-                <select class="SelectedItemModal" name="{{ form.servicos.html_name }}" id="{{ form.servicos.id_for_label }}" required>
-                    {% for value, text in form.servicos.field.choices %}
+                <div class="form-group floating-label">
+                    <select class="SelectedItemModal" name="{{ form.servicos.html_name }}"
+                        id="{{ form.servicos.id_for_label }}" required>
+                        {% for value, text in form.servicos.field.choices %}
                         {% if value %}
-                            <option value="{{ value }}">{{ text }}</option>
+                        <option value="{{ value }}">{{ text }}</option>
                         {% endif %}
-                    {% endfor %}
-                </select>
-                <label for="{{ form.servicos.id_for_label }}">Protocolo do Serviço</label>
-            </div>
+                        {% endfor %}
+                    </select>
+                    <label for="{{ form.servicos.id_for_label }}">Protocolo do Serviço</label>
+                </div>
 
                 <!-- Espaço para mensagens de erro -->
                 <div id="form-errors" class="text-danger mt-3"></div>
@@ -71,9 +72,9 @@
                     <select class="SelectedItemModal" name="client" id="id_client_select" required>
                         <option value="" disabled selected>Selecione um cliente</option>
                         {% for value, text in form.client.field.choices %}
-                            {% if value %}
-                                <option value="{{ value }}">{{ text }}</option>
-                            {% endif %}
+                        {% if value %}
+                        <option value="{{ value }}">{{ text }}</option>
+                        {% endif %}
                         {% endfor %}
                     </select>
                     <label for="client">Cliente</label>
@@ -92,22 +93,26 @@
                     <select class="SelectedItemModal" name="templateModel" id="id_template_select" required>
                         <option value="" disabled selected>Selecione um modelo</option>
                         {% for value, text in form.template.field.choices %}
-                            {% if value %}
-                                <option value="{{ value }}">{{ text }}</option>
-                            {% endif %}
+                        {% if value %}
+                        <option value="{{ value }}">{{ text }}</option>
+                        {% endif %}
                         {% endfor %}
                     </select>
                     <label for="id_template_select">Modelo de Contrato</label>
                 </div>
 
-              
-                <div id="form-errors" class="text-danger mt-3"></div>
+
+                <div id="form-errors" class="text-danger mt-3">
+                
+
+                </div>
             </div>
 
 
-      <div class="modal-footer">
+            <div class="modal-footer">
                 <button type="button" class="button-secondary cancel-btn" id="cancel-new-contract-btn">Cancelar</button>
-                <button type="submit" class="button-primary">Gerar Contrato</button>
+                <button type="submit" id="ButtonSubmitModalAddNewContract" class="button-primary">Gerar
+                    Contrato</button>
             </div>
         </form>
     </div>

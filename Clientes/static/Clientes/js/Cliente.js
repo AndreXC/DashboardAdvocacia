@@ -56,165 +56,171 @@ document.addEventListener('DOMContentLoaded', () => {
     const SelectClientEstrutura = document.getElementById('id_client_select');
     const TituloAddNewContrato = document.getElementById('TituloAddContractCliente');
 
+    const ButtonSUbmitModalAddNewContract = document.getElementById('ButtonSubmitModalAddNewContract');
+
+
+
+    function updateSubmitButtonState() {
+        const hasService = newContractServiceSelect.options.length > 1; // tem opções além do "Selecione..."
+        const hasTemplate = newContractTemplateSelect.options.length > 1;
+
+        ButtonSUbmitModalAddNewContract.disabled = !(hasService && hasTemplate);
+    }
+
 
 
     /////functions open modal CreateNewContract
-
     function closeNewContractModal() {
-            newContractModal.style.display = 'none';
-        }
+        newContractModal.style.display = 'none';
+    }
 
     // Função para abrir o modal e iniciar o preenchimento dinâmico com um ClientId específico
     function openNewContractModal(costumer) {
-                newContractModal.style.display = 'flex';
-                if (costumer) {
-                    TituloAddNewContrato.textContent = `Gerar Novo Contrato para ${costumer.firstName} ${costumer.lastName}`;
-                    SelectClientEstrutura.innerHTML = `<option value="${costumer.id}">${costumer.firstName} ${costumer.lastName}</option>`;
-                    SelectClientEstrutura.value = costumer.id;
-            
-                    // Aciona o carregamento dos serviços
-                    loadNewContractServices(costumer.id);
-                    LoadModelContracts();
-                }
-            }
+        newContractModal.style.display = 'flex';
+        if (costumer) {
+            TituloAddNewContrato.textContent = `Gerar Novo Contrato para ${costumer.firstName} ${costumer.lastName}`;
+            SelectClientEstrutura.innerHTML = `<option value="${costumer.id}">${costumer.firstName} ${costumer.lastName}</option>`;
+            SelectClientEstrutura.value = costumer.id;
+
+            loadNewContractServices(costumer.id);
+            LoadModelContracts();
+        }
+    }
 
 
 
-        closeNewContractModalBtn.addEventListener('click', closeNewContractModal);
-        cancelNewContractBtn.addEventListener('click', closeNewContractModal);
+    closeNewContractModalBtn.addEventListener('click', closeNewContractModal);
+    cancelNewContractBtn.addEventListener('click', closeNewContractModal);
 
-        // Fecha o modal se o usuário clicar fora dele
-        window.onclick = function(event) {
-            if (event.target == newContractModal) {
-                closeNewContractModal();
-            }
-        };
+    // Fecha o modal se o usuário clicar fora dele
+    window.onclick = function (event) {
+        if (event.target == newContractModal) {
+            closeNewContractModal();
+        }
+    };
 
 
 
-      function LoadModelContracts() {
-        // Limpa e desabilita o campo de modelo enquanto carrega
+    function LoadModelContracts() {
         newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Carregando...</option>';
         newContractTemplateSelect.disabled = true;
 
         const url = `Contract/api/get_model_templates/`;
 
         fetch(url)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Erro na resposta da rede: ' + response.statusText);
-            }
-            return response.json();
-          })
-          .then(data => {
-            // Limpa as opções antes de preencher
-            newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Selecione um modelo</option>';
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na resposta da rede: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Selecione um modelo</option>';
 
-            if (data.templates && data.templates.length > 0) {
-              data.templates.forEach(template => {
-                console.log(template);
-                newContractTemplateSelect.innerHTML += `<option value="${template.id}">${template.title}</option>`;
-              });
-              newContractTemplateSelect.disabled = false;
+                if (data.templates && data.templates.length > 0) {
+                    data.templates.forEach(template => {
+                        newContractTemplateSelect.innerHTML += `<option value="${template.id}">${template.title}</option>`;
+                    });
+                    newContractTemplateSelect.disabled = false;
+                } else {
+                    newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Nenhum modelo encontrado</option>';
+                }
+
+                updateSubmitButtonState();
+            })
+            .catch(error => {
+                console.error('Erro ao buscar modelos:', error);
+                newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Erro ao carregar modelos</option>';
+                updateSubmitButtonState();
+            });
+    }
+
+    function loadNewContractServices(clientId) {
+        newContractServiceSelect.innerHTML = '<option value="" disabled selected>Carregando...</option>';
+        newContractServiceSelect.disabled = true;
+
+        const url = `/ContractsClientes/api/services-by-client/${clientId}/`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na resposta da rede: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                newContractServiceSelect.innerHTML = '<option value="" disabled selected>Selecione um Protocolo de Serviço</option>';
+
+                if (data.services && data.services.length > 0) {
+                    data.services.forEach(service => {
+                        newContractServiceSelect.innerHTML += `<option value="${service.id}">${service.text}</option>`;
+                    });
+                    newContractServiceSelect.disabled = false;
+                } else {
+                    newContractServiceSelect.innerHTML = '<option value="" disabled selected>Nenhum serviço ativo encontrado</option>';
+                }
+
+                updateSubmitButtonState();
+            })
+            .catch(error => {
+                console.error('Erro ao buscar serviços:', error);
+                newContractServiceSelect.innerHTML = '<option value="" disabled selected>Erro ao carregar serviços</option>';
+                updateSubmitButtonState();
+            });
+    }
+
+    async function submitNewContractForm(event) {
+        event.preventDefault();
+
+
+
+        const clientId = SelectClientEstrutura.value;
+        const serviceId = newContractServiceSelect.value;
+        const templateId = newContractTemplateSelect.value;
+
+        const formData = {
+            client: clientId,
+            service: serviceId,
+            template: templateId,
+        };
+
+
+        const url = '/ContractsClientes/create/';
+        const csrfToken = getCsrfToken();
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            // Verifica a resposta e mostra o resultado
+            if (data.success) {
+                showToast('success', 'Contrato Criado com sucesso!');
+                closeNewContractModal();
             } else {
-              newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Nenhum modelo encontrado</option>';
-            }
-          })
-          .catch(error => {
-            console.error('Erro ao buscar modelos:', error);
-            newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Erro ao carregar modelos</option>';
-          });
-      }
-
-      function loadNewContractServices(clientId) {
-                // Limpa e desabilita o campo de serviço enquanto carrega
-                newContractServiceSelect.innerHTML = '<option value="" disabled selected>Carregando...</option>';
-                newContractServiceSelect.disabled = true;
-
-                // Aqui simulamos a chamada API. Use a URL real do seu Django.
-                const url = `/ContractsClientes/api/services-by-client/${clientId}/`;
-                // const url = `{% url 'api_services_by_client' 0 %}`.replace('0', clientId);
-
-                fetch(url)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Erro na resposta da rede: ' + response.statusText);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Limpa as opções antes de preencher
-                        newContractServiceSelect.innerHTML = '<option value="" disabled selected>Selecione um Protocolo de Serviço</option>';
-                        
-                        if (data.services && data.services.length > 0) {
-                            data.services.forEach(service => {
-                                newContractServiceSelect.innerHTML += `<option value="${service.id}">${service.text}</option>`;
-                            });
-                            newContractServiceSelect.disabled = false;
-                        } else {
-                            newContractServiceSelect.innerHTML = '<option value="" disabled selected>Nenhum serviço ativo encontrado</option>';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao buscar serviços:', error);
-                        newContractServiceSelect.innerHTML = '<option value="" disabled selected>Erro ao carregar serviços</option>';
+                // Exibe os erros na tela
+                const errorDiv = document.getElementById('form-errors');
+                errorDiv.innerHTML = ''; // Limpa erros anteriores
+                for (const field in data.errors) {
+                    data.errors[field].forEach(error => {
+                        const p = document.createElement('p');
+                        p.textContent = `${field}: ${error.message}`;
+                        errorDiv.appendChild(p);
                     });
-            }
-
-
-          async function submitNewContractForm(event) {
-                event.preventDefault(); // Impede o envio padrão do formulário
-
-                // Coleta os valores dos campos
-                const clientId = SelectClientEstrutura.value;
-                const serviceId = newContractServiceSelect.value;
-                const templateId = newContractTemplateSelect.value;
-
-                const formData = {
-                    client: clientId,
-                    service: serviceId,
-                    template: templateId, 
-                };
-                
-
-                console.log(formData)
-                const url = '/ContractsClientes/create/';
-                const csrfToken = getCsrfToken();
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': csrfToken,
-                        },
-                        body: JSON.stringify(formData),
-                    });
-
-                    const data = await response.json();
-
-                    // Verifica a resposta e mostra o resultado
-                    if (data.success) {
-                        alert('Contrato gerado com sucesso!'); // Usar um modal personalizado em produção
-                        closeNewContractModal();
-                    } else {
-                        // Exibe os erros na tela
-                        const errorDiv = document.getElementById('form-errors');
-                        errorDiv.innerHTML = ''; // Limpa erros anteriores
-                        for (const field in data.errors) {
-                            data.errors[field].forEach(error => {
-                                const p = document.createElement('p');
-                                p.textContent = `${field}: ${error.message}`;
-                                errorDiv.appendChild(p);
-                            });
-                        }
-                    }
-                } catch (error) {
-                    console.error('Erro no envio do formulário:', error);
-                    alert('Erro ao gerar o contrato. Tente novamente.');
                 }
             }
+        } catch (error) {
+            showToast('error', 'Não foi possivel Gerar o contrato. Tente novamente mais tarde.');
+        }
+    }
 
-            newContractFormCliente.addEventListener('submit', submitNewContractForm);
+    newContractFormCliente.addEventListener('submit', submitNewContractForm);
 
     // =================================================================================
     // FUNÇÕES AUXILIARES E API
@@ -232,17 +238,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModal = (modal) => modal.classList.remove('show');
 
     // Função centralizada para todas as requisições à API Django
+    // const apiRequest = async (url, method = 'GET', body = null) => {
+    //     const options = {
+    //         method,
+    //         headers: {
+    //             'Content-Type': 'application/json',
+
+    //             'X-CSRFToken': getCsrfToken(),
+    //         },
+    //     };
+    //     if (body) {
+    //         options.body = JSON.stringify(body);
+    //     }
+    //     try {
+    //         const response = await fetch(url, options);
+    //         if (!response.ok) {
+    //             const errorData = await response.json().catch(() => ({ error: `Erro HTTP! Status: ${response.status}` }));
+    //             throw new Error(errorData.error || `Erro desconhecido`);
+    //         }
+    //         if (response.status === 204) { // No Content
+    //             return null;
+    //         }
+    //         return response.json();
+    //     } catch (error) {
+    //         console.error('Erro na requisição API:', error);
+    //         showAlert(error.message);
+    //         throw error;
+    //     }
+    // };
+
     const apiRequest = async (url, method = 'GET', body = null) => {
         const options = {
             method,
             headers: {
-                'Content-Type': 'application/json',
+                // Adiciona o token CSRF, mas deixa o Content-Type para ser definido depois
                 'X-CSRFToken': getCsrfToken(),
             },
         };
+
         if (body) {
-            options.body = JSON.stringify(body);
+            if (body instanceof FormData) {
+                // SE FOR FORMDATA (ENVIO DE ARQUIVO):
+                // 1. Não defina 'Content-Type'. O navegador fará isso automaticamente
+                //    com o 'boundary' correto, que é essencial para uploads.
+                // 2. O corpo da requisição é o próprio objeto FormData.
+                options.body = body;
+            } else {
+                // SE FOR QUALQUER OUTRA COISA (OBJETO JS NORMAL):
+                // 1. Defina o cabeçalho como JSON.
+                // 2. Converta o objeto para uma string JSON.
+                options.headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(body);
+            }
         }
+
         try {
             const response = await fetch(url, options);
             if (!response.ok) {
@@ -260,24 +309,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-
     // =================================================================================
     // FUNÇÕES DE RENDERIZAÇÃO (manipulam o DOM)
     // =================================================================================
 
     const renderCustomerList = (customers) => {
-        // Limpa a lista antes de renderizar (importante para a busca)
         customerListTbody.innerHTML = '';
+
         if (!customers || customers.length === 0) {
             customerListTbody.innerHTML = '<tr><td colspan="2">Nenhum cliente encontrado.</td></tr>';
             return;
         }
+
         customers.forEach(customer => {
             const row = document.createElement('tr');
             row.dataset.customerId = customer.id;
             row.className = customer.id === currentCustomerId ? 'selected' : '';
-            // Usa fullName vindo da API
-            row.innerHTML = `<td>${customer.fullName}</td><td>${customer.company || '-'}</td>`;
+
+
+            row.innerHTML = `
+            <td>
+                <div class="profile-cell">
+                    <img src="${customer.image_url}" alt="Foto de ${customer.fullName}">
+                    <span>${customer.fullName}</span>
+                </div>
+            </td>
+            <td>${customer.company || '-'}</td>
+        `;
+
             customerListTbody.appendChild(row);
         });
     };
@@ -422,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(`tab-content-${tabId}`).classList.add('active');
         document.querySelector(`.tab-link[data-tab="${tabId}"]`).classList.add('active');
     };
-    
+
 
 
     // const renderContractsList = (contracts) => {
@@ -619,29 +678,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // const handleCustomerFormSubmit = async (e) => {
+    //     e.preventDefault();
+    //     const formData = new FormData(customerForm);
+    //     const customerData = {
+    //         firstName: formData.get('firstName'), lastName: formData.get('lastName'),
+    //         email: formData.get('email'), phone: formData.get('phone'),
+    //         address: formData.get('address'), company: formData.get('company'),
+    //         position: formData.get('position'), photoUrl: formData.get('photoUrl'),
+    //         photo: formData.get('photoUpload') // Se estiver enviando arquivo, ajuste a API para aceitar multipart/form-data
+    //     };
+    //     // Validação...
+
+    //     try {
+    //         const newCustomer = await apiRequest('/api/customers/', 'POST', customerData);
+    //         customerCache.push(newCustomer);
+    //         renderCustomerList(customerCache);
+    //         await displayCustomerDetails(newCustomer.id);
+    //         closeModal(customerModal);
+    //         customerForm.reset();
+    //     } catch (error) {
+    //         console.error("Falha ao criar cliente:", error);
+    //     }
+    // };
+
+
     const handleCustomerFormSubmit = async (e) => {
         e.preventDefault();
+
+        // 1. Crie o FormData a partir do formulário. Ele contém TODOS os dados, incluindo o arquivo.
         const formData = new FormData(customerForm);
-        const customerData = {
-            firstName: formData.get('firstName'), lastName: formData.get('lastName'),
-            email: formData.get('email'), phone: formData.get('phone'),
-            address: formData.get('address'), company: formData.get('company'),
-            position: formData.get('position'), photoUrl: formData.get('photoUrl'),
-        };
-        // Validação...
+
+        // Validação (pode ser feita diretamente no formData)
+        if (!formData.get('firstName') || !formData.get('email')) {
+            showAlert('Nome e E-mail são obrigatórios.');
+            return;
+        }
 
         try {
-            const newCustomer = await apiRequest('/api/customers/', 'POST', customerData);
+            const newCustomer = await apiRequest('/api/customers/', 'POST', formData);
+
+            // Sua lógica de sucesso continua a mesma
             customerCache.push(newCustomer);
             renderCustomerList(customerCache);
             await displayCustomerDetails(newCustomer.id);
             closeModal(customerModal);
             customerForm.reset();
+            // Lembre-se de chamar a função que reseta o visual do drag-and-drop também
+            resetDragDropComponent(); // Use o nome correto da sua função de reset
         } catch (error) {
             console.error("Falha ao criar cliente:", error);
         }
     };
-
     const handleServiceFormSubmit = async (e) => {
         e.preventDefault();
         if (!currentCustomerId) return;

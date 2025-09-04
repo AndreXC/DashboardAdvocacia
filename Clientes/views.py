@@ -8,6 +8,9 @@ from .models import Customer, Service, Invoice, AreaDireito, CategoriaServico
 from ContractsClientes.models import Contract
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.conf import settings
+import os
+import uuid
 
 
 # View para renderizar a página principal
@@ -48,6 +51,32 @@ def contract_list_api(request, customer_id):
     return JsonResponse(data, safe=False)
 
 
+# @require_http_methods(["GET", "POST"])
+# def customer_list_create_api(request):
+#     if request.method == "GET":
+#         customers = Customer.objects.all().order_by('first_name')
+#         data = [{
+#             'id': c.id,
+#             'fullName': c.full_name,
+#             'company': c.company,
+#         } for c in customers]
+#         return JsonResponse(data, safe=False)
+
+#     elif request.method == "POST":
+#         data = json.loads(request.body)
+#         customer = Customer.objects.create(
+#             first_name=data.get('firstName'),
+#             last_name=data.get('lastName'),
+#             email=data.get('email'),
+#             phone=data.get('phone'),
+#             address=data.get('address'),
+#             company=data.get('company'),
+#             position=data.get('position'),
+#             photo_url=data.get('photoUrl') or 'https://via.placeholder.com/80'
+#         )
+#         return JsonResponse({'id': customer.id, 'fullName': customer.full_name, 'company': customer.company}, status=201)
+
+
 @require_http_methods(["GET", "POST"])
 def customer_list_create_api(request):
     if request.method == "GET":
@@ -56,22 +85,67 @@ def customer_list_create_api(request):
             'id': c.id,
             'fullName': c.full_name,
             'company': c.company,
+            'image_url': c.photo_url
         } for c in customers]
         return JsonResponse(data, safe=False)
 
     elif request.method == "POST":
-        data = json.loads(request.body)
-        customer = Customer.objects.create(
-            first_name=data.get('firstName'),
-            last_name=data.get('lastName'),
-            email=data.get('email'),
-            phone=data.get('phone'),
-            address=data.get('address'),
-            company=data.get('company'),
-            position=data.get('position'),
-            photo_url=data.get('photoUrl') or 'https://via.placeholder.com/80'
-        )
-        return JsonResponse({'id': customer.id, 'fullName': customer.full_name, 'company': customer.company}, status=201)
+        data = request.POST
+        photo_file = request.FILES.get('photoUpload')
+        
+        image_url_to_save = 'https://via.placeholder.com/80' # URL Padrão
+
+        # --- NOVA LÓGICA PARA SALVAR A IMAGEM ---
+        if photo_file:
+            try:
+                # 1. Gerar um nome de arquivo único para evitar colisões
+                file_extension = os.path.splitext(photo_file.name)[1]
+                unique_filename = f"{uuid.uuid4()}{file_extension}"
+
+                # 2. Definir o caminho completo para salvar o arquivo
+                # Assumindo que você tem uma pasta 'static' na raiz do projeto
+                save_path_dir = os.path.join(settings.BASE_DIR, 'static', 'imgusers')
+                
+                # Cria o diretório se ele não existir
+                os.makedirs(save_path_dir, exist_ok=True)
+                
+                file_path = os.path.join(save_path_dir, unique_filename)
+
+                # 3. Salvar o arquivo no disco
+                with open(file_path, 'wb+') as destination:
+                    for chunk in photo_file.chunks():
+                        destination.write(chunk)
+
+                # 4. Construir a URL para salvar no banco de dados
+                image_url_to_save = f"{settings.STATIC_URL}imgusers/{unique_filename}"
+
+            except Exception as e:
+                # Se algo der errado no salvamento do arquivo, retorna um erro
+                return JsonResponse({'error': f'Erro ao salvar a imagem: {str(e)}'}, status=500)
+
+        # --- CRIAÇÃO DO CLIENTE NO BANCO DE DADOS ---
+        try:
+            customer = Customer.objects.create(
+                first_name=data.get('firstName'),
+                last_name=data.get('lastName'),
+                email=data.get('email'),
+                phone=data.get('phone'),
+                address=data.get('address'),
+                company=data.get('company'),
+                position=data.get('position'),
+                photo_url=image_url_to_save  # Salva a URL gerada
+            )
+            
+            response_data = {
+                'id': customer.id,
+                'fullName': customer.full_name,
+                'company': customer.company,
+                'photoUrl': customer.photo_url # Retorna a URL salva
+            }
+            return JsonResponse(response_data, status=201)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
 
 @require_http_methods(["GET", "PUT", "DELETE"])
 def customer_detail_api(request, pk):

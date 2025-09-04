@@ -9,7 +9,7 @@ class Customer(models.Model):
     address = models.CharField(max_length=255, blank=True, null=True)
     company = models.CharField(max_length=100, blank=True, null=True)
     position = models.CharField(max_length=100, blank=True, null=True)
-    photo_url = models.URLField(max_length=500, blank=True, null=True, default='https://via.placeholder.com/80')
+    photo_url = models.URLField(max_length=500, blank=True, null=True, default='https://cdn-icons-png.flaticon.com/512/149/149071.png')
     created_at = models.DateTimeField(auto_now_add=True),
     cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF", default=''),
     

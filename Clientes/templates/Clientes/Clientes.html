@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    {% load static %}
-    
-    {% include "includes/header.html" %}
+{% load static %}
+
+{% include "includes/header.html" %}
 
 <body>
     {% include "includes/sidebar.html" %}
 
-    <main class="main-content">
+    <main class="main-container">
         <header>
             <h1>Clientes</h1>
             {% include "includes/theme.html" %}
@@ -19,8 +19,20 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Nome Completo</th>
-                                <th>Empresa</th>
+                                <th>
+                                    <div class='icon_container'>
+                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                        <span>Cliente</span>
+                                    </div>
+                                </th>
+
+                                <th>
+                                    <div class="icon_container">
+                                        <i class="fa fa-building" aria-hidden="true"></i>
+                                        <span>Empresa</span>
+
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
                         <tbody id="customer-list-tbody"></tbody>
@@ -141,27 +153,28 @@
                             </thead>
                             <tbody id="contracts-tbody"></tbody>
                         </table> {% endcomment %}
-                    <table class="contracts-table">
-                        <thead>
-                            <tr>
-                                <th>Descrição</th>
-                                <th>Status</th>
-                                <th>Data de Criação</th>
-                                <th>Ações</th> </tr>
-                        </thead>
-                        <tbody id="contracts-tbody">
+                        <table class="contracts-table">
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th>Status</th>
+                                    <th>Data de Criação</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contracts-tbody">
                             </tbody>
-                    </table>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
 
-         <div class="fixed bottom-8 right-8">
+        <div class="fixed bottom-8 right-8">
             <button id="add-new-customer-btn" title="Adicionar Novo Cliente"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
-                <i class="fa-solid fa-plus text-2xl"></i>      
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+                <i class="fa fa-user-plus" aria-hidden="true"></i>
             </button>
         </div>
 
@@ -173,21 +186,25 @@
 
         {%include "ContractsClientes/Modal/AddNewContratoCliente.html" %}
 
-        
+
         {% include "includes/ModalErro.html" %}
 
+        {% include "includes/toastMenssagem.html" %}
 
 
 
 
-        
+
+
     </main>
 
-    {% block scripts %}   
-        <script src="{% static 'Clientes/js/Cliente.js' %}"></script>
-        <script src="{% static 'resources/js/includes/theme.js' %}"></script>
+    {% block scripts %}
+    <script src="{% static 'Clientes/js/Cliente.js' %}"></script>
+    <script src="{% static 'resources/js/includes/theme.js' %}"></script>
+    <script src="{% static 'Clientes/js/dragdropFotoClient.js' %}"></script>
+    <script src="{% static 'resources/js/includes/subMenus.js' %}"></script>
     {% endblock %}
-    
+
 </body>
 
 </html>
