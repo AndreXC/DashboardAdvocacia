@@ -142,7 +142,7 @@ aside.collapsed+.main-container {
     flex-shrink: 0;
     /* Impede que o header encolha */
 
-header {
+/* header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -150,8 +150,23 @@ header {
     height: 5rem;
     flex-shrink: 0;
     
-}
+} */
 
+
+header {
+display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* padding: 4rem 4rem; */
+    padding: 40px;
+    height: 2rem;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background-color: var(--panel-bg);
+    margin: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+
+}
 
 
 .panels-container {
