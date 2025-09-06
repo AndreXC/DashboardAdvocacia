@@ -28,7 +28,7 @@
     --colorSvg: #6c757d;
 
 
-    --color-background: #11101d;
+    --color-background: #010409;
     --color-surface: #1d1b31;
     --color-surface-light: #2c2945;
     --color-primary: #3b82f6;
@@ -53,10 +53,10 @@
 
 .dark-theme-variables {
     /* --bg-color: #111827; */
-    --bg-color: #101211;
+    --bg-color: #0D0D0D;
     /* --panel-bg: #1f2937; */
-    --panel-bg: #101211;
-    ;
+    --panel-bg: #121212;
+    --aside-background: #121212;
     --border-color: #1D201F;
     --color-dark-variant: #a3bdcc;
     --color-light: rgba(0, 0, 0, 0.4);
@@ -103,6 +103,7 @@ body {
 .content-container-app {
     display: flex;
     height: 100vh;
+    margin: 10px;
 }
 
 /* .main-content {
@@ -145,10 +146,10 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 2rem;
+    padding: 4rem 4rem;
     height: 5rem;
-    border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
+    
 }
 
 
@@ -178,10 +179,12 @@ header {
     /* Ajustado para melhor proporção */
     min-width: 350px;
     background-color: var(--panel-bg);
-    border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+     margin: 27px;
+     border-radius: 10px;
 }
 
 /* CORRIGIDO: Painel de detalhes do cliente */
@@ -198,6 +201,10 @@ header {
     width: 65%;
     padding: 2.5rem;
     overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    margin: 27px;
+    border-radius: 10px;
+    background-color: var(--panel-bg);
 }
 
 header .header-right {
@@ -252,12 +259,15 @@ aside {
     position: fixed;
     left: 0;
     top: 0;
-    height: 100%;
+    height: 95.5%;
+    margin: 10px;
     width: 260px;
-    background: var(--color-surface);
+    background: var(--aside-background);
     padding: 6px 14px;
     z-index: 1000;
     transition: width var(--transition-speed) ease, padding var(--transition-speed) ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
 }
 
 aside.collapsed {
@@ -267,12 +277,10 @@ aside.collapsed {
 
 /* --- Header e Logo --- */
 aside .logo-header {
-    height: 60px;
+   height: 60px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     width: 100%;
-    padding: 0 4px;
 }
 
 .logo-header .logo {
@@ -285,7 +293,7 @@ aside .logo-header {
 .logo-icon {
     font-size: 30px;
     color: var(--color-white);
-    min-width: 50px;
+    min-width: 80px;
     text-align: center;
     flex-shrink: 0;
     transition: min-width var(--transition-speed) ease;
@@ -308,7 +316,7 @@ aside.collapsed .logo {
 /* --- Botão de Toggle --- */
 #toggle-btn {
     position: absolute;
-    top: 30px;
+    top: 20px;
     right: 14px;
     font-size: 28px;
     color: var(--color-white);
@@ -560,8 +568,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background-color: var(--bg-color);
-    border: 1px dashed var(--border-color);
+    background-color: var(--panel-bg);
 }
 
 .list-header h3 {
@@ -656,6 +663,7 @@ h1 {
 .table-container {
     flex-grow: 1;
     overflow-y: auto;
+    margin: 10px;
 }
 
 table {
@@ -1454,7 +1462,7 @@ svg {
     }
 
 }
-
+/* 
 .main-content {
     @apply p-8;
 }
@@ -1469,7 +1477,7 @@ svg {
 
 .customer-detail-panel {
     @apply w-2/3 bg-white p-6 rounded-lg shadow-md;
-}
+} */
 
 .hidden {
     display: none;
@@ -1788,4 +1796,17 @@ svg {
     background-color: var(--SelectedTR);
     border: 1px solid var(--text-muted);
     color: var(--color-h1);
+}
+
+.fade-in-start {
+    opacity: 0;
+    transform: translateY(-15px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* 2. Estado final da animação: visível e na posição final */
+.fade-in-end {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }

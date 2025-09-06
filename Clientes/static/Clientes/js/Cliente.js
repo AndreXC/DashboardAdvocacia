@@ -436,13 +436,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const displayCustomerDetails = async (customerId) => {
         try {
+            containerMainCustomer = document.getElementById('customer-detail-view');
             // Busca os dados completos do cliente, incluindo serviços e faturas, da API
             const customer = await apiRequest(`/api/customers/${customerId}/`);
             if (!customer) return;
 
+
+            
             if (isEditMode) await exitEditMode(false, customer);
             currentCustomerId = customer.id;
 
+
+            containerMainCustomer.classList.add('fade-in-start');
+
+            if (containerMainCustomer.classList.contains('fade-in-end')) {
+                containerMainCustomer.classList.remove('fade-in-end');
+            }
 
             const contracts = await apiRequest(`/api/customers/${customerId}/contracts/`);
 
@@ -453,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Preenche o painel de detalhes
-            document.getElementById('customer-photo').src = customer.photoUrl || 'https://via.placeholder.com/80';
+            document.getElementById('customer-photo').src = customer.photoUrl || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
             document.getElementById('customer-fullname').textContent = `${customer.firstName} ${customer.lastName}`;
 
 
@@ -470,6 +479,10 @@ document.addEventListener('DOMContentLoaded', () => {
             emptyState.classList.add('hidden');
             customerContent.classList.remove('hidden');
 
+            setTimeout(() => {
+           containerMainCustomer.classList.add('fade-in-end');
+        }, 300); 
+        
         } catch (error) {
             console.error("Falha ao buscar detalhes do cliente:", error);
         }
@@ -641,9 +654,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const handleCustomerSelect = (e) => {
         const row = e.target.closest('tr');
+         document.getElementById('customer-detail-view').classList.add('fade-in-start');
+
+
         if (row && row.dataset.customerId) {
             displayCustomerDetails(parseInt(row.dataset.customerId, 10));
         }
+    
     };
 
     const handleServiceSelect = async (e) => {

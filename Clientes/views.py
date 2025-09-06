@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.conf import settings
 import os
 import uuid
+from .api.POST.CustomerService.serviceCreate import CustomerService
 
 
 # View para renderizar a página principal
@@ -49,33 +50,6 @@ def contract_list_api(request, customer_id):
         })
     
     return JsonResponse(data, safe=False)
-
-
-# @require_http_methods(["GET", "POST"])
-# def customer_list_create_api(request):
-#     if request.method == "GET":
-#         customers = Customer.objects.all().order_by('first_name')
-#         data = [{
-#             'id': c.id,
-#             'fullName': c.full_name,
-#             'company': c.company,
-#         } for c in customers]
-#         return JsonResponse(data, safe=False)
-
-#     elif request.method == "POST":
-#         data = json.loads(request.body)
-#         customer = Customer.objects.create(
-#             first_name=data.get('firstName'),
-#             last_name=data.get('lastName'),
-#             email=data.get('email'),
-#             phone=data.get('phone'),
-#             address=data.get('address'),
-#             company=data.get('company'),
-#             position=data.get('position'),
-#             photo_url=data.get('photoUrl') or 'https://via.placeholder.com/80'
-#         )
-#         return JsonResponse({'id': customer.id, 'fullName': customer.full_name, 'company': customer.company}, status=201)
-
 
 @require_http_methods(["GET", "POST"])
 def customer_list_create_api(request):
@@ -201,161 +175,18 @@ def customer_detail_api(request, pk):
         customer.delete()
         return JsonResponse({}, status=204) # 204 No Content
 
-# @require_http_methods(["POST"])
-# def service_create_api(request, customer_pk):
-#     try:
-#         customer = Customer.objects.get(pk=customer_pk)
-#         data = json.loads(request.body)
-        
-#         service = Service.objects.create(
-#             customer=customer,
-#             name=data.get('name'),
-#             protocolo=data.get('protocolo'),
-#             area_direito=data.get('area_direito'),
-#             total_value=data.get('totalValue')
-#         )
 
-#         # Lógica de criação de faturas movida para o backend
-#         first_due_date = date.fromisoformat(data.get('firstPaymentDate'))
-        
-#         if data.get('paymentType') == 'avista':
-#             Invoice.objects.create(
-#                 service=service,
-#                 description='Pagamento Único',
-#                 due_date=first_due_date,
-#                 value=service.total_value,
-#                 status=Invoice.StatusChoices.PENDING
-#             )
-#         else: # Parcelado
-#             installments = int(data.get('installments'))
-#             # A lógica de juros e valor da entrada pode ser adicionada aqui
-#             # Simplificando para parcelas iguais por enquanto
-#             installment_value = service.total_value / installments
-#             for i in range(installments):
-#                 due_date = first_due_date + timedelta(days=30 * i)
-#                 Invoice.objects.create(
-#                     service=service,
-#                     description=f"Parcela {i+1}/{installments}",
-#                     due_date=due_date,
-#                     value=installment_value,
-#                     status=Invoice.StatusChoices.PENDING
-#                 )
-        
-#         return JsonResponse({'message': 'Serviço adicionado com sucesso'}, status=201)
-        
-#     except Customer.DoesNotExist:
-#         return JsonResponse({'error': 'Cliente não encontrado'}, status=404)
-
-
-# @require_http_methods(["POST"])
-# def service_create_api(request, customer_pk):
-#     try:
-#         customer = Customer.objects.get(pk=customer_pk)
-#         data = json.loads(request.body)
-        
-#         service = Service.objects.create(
-#             customer=customer,
-#             name=data.get('name'),
-#             protocolo=data.get('protocolo'),
-#             area_direito=data.get('area_direito'),
-#             # Corrigido: usando a chave 'totalValue' do frontend
-#             total_value=data.get('totalValue') 
-#         )
-
-#         # Corrigido: usando a chave 'firstPaymentDate' do frontend
-#         first_due_date = date.fromisoformat(data.get('firstPaymentDate'))
-        
-#         if data.get('paymentType') == 'avista':
-#             Invoice.objects.create(
-#                 service=service,
-#                 description='Pagamento Único',
-#                 due_date=first_due_date,
-#                 value=service.total_value,
-#                 status=Invoice.StatusChoices.PENDING
-#             )
-#         else: # Parcelado
-#             # Corrigido: usando a chave 'installments' do frontend
-#             installments = int(data.get('installments')) 
-#             installment_value = service.total_value / installments
-#             for i in range(installments):
-#                 due_date = first_due_date + timedelta(days=30 * i)
-#                 Invoice.objects.create(
-#                     service=service,
-#                     description=f"Parcela {i+1}/{installments}",
-#                     due_date=due_date,
-#                     value=installment_value,
-#                     status=Invoice.StatusChoices.PENDING
-#                 )
-        
-#         return JsonResponse({'message': 'Serviço adicionado com sucesso'}, status=201)
-        
-#     except Customer.DoesNotExist:
-#         return JsonResponse({'error': 'Cliente não encontrado'}, status=404)
-#     except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
-#         return JsonResponse({'error': f'Dados inválidos: {e}'}, status=400)
 
 @require_http_methods(["POST"])
 def service_create_api(request, customer_pk):
-    try:
-        # 1. Busca a instância do cliente
-        customer = Customer.objects.get(pk=customer_pk)
-        
-        # 2. Carrega os dados JSON da requisição
-        data = json.loads(request.body)
-        
-        # 3. Processa a Área do Direito
-        area_direito_id = data.get('area_direito')
-        area_direito_instance = None 
+    InstanceCustomerService = CustomerService(customer_pk, request)
+    success, StrErr = InstanceCustomerService._create_service()
+    
+    if not success:
+        return JsonResponse({'error': StrErr}, status=500)
+    return JsonResponse({'message': 'Serviço criado com sucesso.'}, status=201)
 
-        if area_direito_id:
-            try:
-                # Busca a instância da Área do Direito com base no ID
-                area_direito_instance = AreaDireito.objects.get(pk=area_direito_id)
-            except AreaDireito.DoesNotExist:
-                return JsonResponse({'error': 'Área de Direito não encontrada.'}, status=404)
-        
-        # 4. Cria a instância do Serviço, passando a instância da Área do Direito
-        service = Service.objects.create(
-            customer=customer,
-            nome_servico=data.get('name'),
-            protocolo=data.get('protocolo'),
-            area_direito=area_direito_instance,
-            total_value=data.get('totalValue')
-        )
 
-        # 5. Lógica para criar as faturas (invoices)
-        first_due_date = date.fromisoformat(data.get('firstPaymentDate'))
-        
-        if data.get('paymentType') == 'avista':
-            Invoice.objects.create(
-                service=service,
-                description='Pagamento Único',
-                due_date=first_due_date,
-                value=service.total_value,
-                status=Invoice.StatusChoices.PENDING
-            )
-        else: # Parcelado
-            installments = int(data.get('installments'))
-            installment_value = service.total_value / installments
-            for i in range(installments):
-                due_date = first_due_date + timedelta(days=30 * i)
-                Invoice.objects.create(
-                    service=service,
-                    description=f"Parcela {i+1}/{installments}",
-                    due_date=due_date,
-                    value=installment_value,
-                    status=Invoice.StatusChoices.PENDING
-                )
-        
-        return JsonResponse({'message': 'Serviço adicionado com sucesso.'}, status=201)
-        
-    except Customer.DoesNotExist:
-        return JsonResponse({'error': 'Cliente não encontrado.'}, status=404)
-    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
-        # Captura erros de formato de dados e campos ausentes
-        return JsonResponse({'error': f'Dados inválidos: {e}'}, status=400)
-    except Exception as e:
-        return JsonResponse({'error': f'Erro interno: {e}'}, status=500)
 
 @require_http_methods(["PUT"])
 def service_detail_api(request, pk):
