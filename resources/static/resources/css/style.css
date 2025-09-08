@@ -49,6 +49,7 @@
     text-decoration: none;
     list-style: none;
     box-sizing: border-box;
+    font-family: var(--font-family);
 }
 
 .dark-theme-variables {
@@ -98,6 +99,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     /* REMOVIDO: display:flex e overflow:hidden daqui para controlar nos filhos */
+   transition: background-color 0.3s, color 0.3s;
 }
 
 .content-container-app {
@@ -307,7 +309,7 @@ aside .logo-header {
 
 .logo-icon {
     font-size: 30px;
-    color: var(--color-white);
+    color: var(--color-h1);
     min-width: 80px;
     text-align: center;
     flex-shrink: 0;
@@ -316,7 +318,7 @@ aside .logo-header {
 
 .logo-name {
     font-size: 20px;
-    color: var(--color-white);
+    color: var(--color-h1);
     font-weight: 600;
     white-space: nowrap;
     opacity: 1;
@@ -331,10 +333,12 @@ aside.collapsed .logo {
 /* --- Botão de Toggle --- */
 #toggle-btn {
     position: absolute;
+    background-color: rgba(255, 255, 255, 0.1);
     top: 20px;
     right: 14px;
+    border:1px solid var(--border-color);
     font-size: 28px;
-    color: var(--color-white);
+    color: var(--color-h1);
     cursor: pointer;
     border-radius: 50%;
     padding: 5px;
@@ -383,17 +387,19 @@ aside li a {
     align-items: center;
     text-decoration: none;
     background: transparent;
-    color: var(--color-text);
+    color: var(--color-h1);
     transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
 aside li a:hover {
-    background: var(--color-primary);
-    color: var(--color-white);
+    background: var(--SelectedTR);
+    color: var(--color-h1);
+
+
 }
 
 aside li a.active {
-    background: var(--color-surface-light);
+    background: var(--SelectedTR);
 }
 
 /* Ícones, Nomes e Setas */
@@ -439,7 +445,7 @@ aside.collapsed li a .arrow {
     transition: grid-template-rows var(--transition-speed) ease-in-out;
     padding-left: 28px;
     margin-left: 22px;
-    border-left: 2px solid var(--color-surface-light);
+    border-left: 2px solid var(--SelectedTR);
 }
 
 aside:not(.collapsed) li.has-submenu.open>.submenu-wrapper {
@@ -451,7 +457,7 @@ aside:not(.collapsed) li.has-submenu.open>.submenu-wrapper {
 }
 
 aside:not(.collapsed) .submenu-wrapper {
-    border-left: 2px solid var(--color-surface-light);
+    border-left: 2px solid var(--SelectedTR);
 }
 
 /* Tooltips */
@@ -496,7 +502,7 @@ aside.collapsed .submenu-wrapper {
     left: 78px;
     top: 0;
     width: 200px;
-    background: var(--color-surface-darker);
+    background: var(--panel-bg);
     border-radius: 8px;
     padding: 8px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
@@ -553,8 +559,8 @@ aside.collapsed .submenu a .link-name {
 
 /* Hover Submenu Flutuante */
 aside.collapsed .submenu a:hover {
-    background-color: var(--color-surface-light);
-    color: var(--color-white);
+    background-color: var(--SelectedTR);
+    color: var(--color-h1);
     outline: none;
 }
 
@@ -572,12 +578,11 @@ aside li.profile {
 
 
 h1 {
-    color: var(--color-h1);
-    font-size: 2rem !important;
-}
+    color: var(--text-muted);
+    font-size: 1.8rem !important;
+    font-weight: 600 !important;}
 
-/* Correções para o estilo .list-header */
-.list-header {
+    .list-header {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -768,9 +773,8 @@ td:last-child {
 
 #customer-fullname {
     margin: 0;
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--color-h1);
+    font-size: 1.5rem;
+    font-weight: 500;   color: var(--text-muted);
 }
 
 #customer-email {
@@ -797,9 +801,11 @@ td:last-child {
 }
 
 .tab-link.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
+   color: var(--color-h1);
+    font-size: 1rem;
+    border-bottom: 2px solid;
 }
+
 
 .tab-content {
     display: none;
@@ -831,12 +837,15 @@ td:last-child {
     font-size: 1rem;
     color: var(--text-muted);
     margin-bottom: 0.25rem;
+    font-weight: 700;
 }
 
 .info-item p {
     margin: 0;
-    font-weight: 500;
-    color: var(--text-muted)
+    font-weight: 400;
+    color: var(--text-muted);
+    text-decoration: underline;
+    font-style: italic;
 }
 
 /* --- Seção de Serviços --- */
@@ -1274,8 +1283,7 @@ td:last-child {
 
 
 svg {
-    color: var(--text-muted);
-
+    color: var(--color-h1);
 }
 
 .status-badge {
@@ -1314,7 +1322,7 @@ svg {
 }
 
 .button-icon {
-    background-color: #f1f3f5;
+    background-color: transparent;
     color: var(--text-muted);
     border: 1px solid #dee2e6;
     width: 36px;
@@ -1328,7 +1336,7 @@ svg {
 }
 
 .button-icon:hover {
-    background-color: #e9ecef;
+    background-color: var(--primary-color);
     color: var(--text-color);
 }
 
@@ -1824,4 +1832,76 @@ svg {
     opacity: 1;
     transform: translateY(0);
     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+
+
+.theme-switcher {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.theme-toggle {
+  display: none;
+}
+
+.toggle-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  background-color: var(--SelectedTR);
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.5s ease;
+}
+
+.sun, .moon {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.moon {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ecf0f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>');
+  transform: scale(1) rotate(0deg);
+  opacity: 1;
+}
+
+.sun {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f39c12" stroke="%23f39c12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>');
+  transform: scale(0) rotate(90deg);
+  opacity: 0;
+}
+
+/* Estado quando o checkbox está marcado (Modo Claro) */
+.theme-toggle:checked ~ .toggle-label {
+  background-color: var(--bg-color);
+  color: var(--color-h1);
+border: 1px solid #e5e7eb;
+}
+
+.theme-toggle:checked ~ .toggle-label .moon {
+  transform: scale(0) rotate(-90deg);
+  opacity: 0;
+}
+
+.theme-toggle:checked ~ .toggle-label .sun {
+  transform: scale(1) rotate(0deg);
+
+  opacity: 1;
+}
+
+/* Altera o tema do body */
+.theme-toggle:checked ~ * {
+  --background-dark: var(--background-light);
+  --text-dark: var(--text-light);
+  --button-background-dark: var(--button-toggle-light);
 }
