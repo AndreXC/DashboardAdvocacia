@@ -1,7 +1,7 @@
 
 
 from ....models import Customer, Service, Invoice
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest
 import json
 from ...comuns.Getareaservice import get_area_direito
 from datetime import date, timedelta

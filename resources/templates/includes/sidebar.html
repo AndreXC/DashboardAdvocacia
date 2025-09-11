@@ -1,9 +1,10 @@
 {% load active_link %}
+{% load static %}
 <aside class="collapsed">
     <div class="logo-header">
-        <div class="logo-icon"> 
-            <span class="material-icons-sharp logo-icon">insights</span>
-        </div>    
+        <div class="logo-icon">
+            <img  src="{% static 'resources/img/logo.png' %}" alt="">
+        </div>
         <div class="logo">
             <div class="logo-name">JuriDash</div>
         </div>
@@ -26,21 +27,21 @@
                 <span class="material-icons-sharp arrow">expand_more</span>
             </a>
             <div class="submenu-wrapper">
-                    <ul class="submenu">
-                        <li>
-                            <a href="{% url 'Contract:Contract' %}" class="{% active_link 'Contract:Contract' %}">
-                                <span class="material-icons-sharp">person_outline</span>
-                                <span class="link-name">Clientes</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'ContractsClientes:ContractsClientes' %}"
-                                class="{% active_link 'ContractsClientes:ContractsClientes' %}">
-                                <span class="material-icons-sharp">description</span>
-                                <span class="link-name">Acordos</span>
-                            </a>
-                        </li>
-                    </ul>
+                <ul class="submenu">
+                    <li>
+                        <a href="{% url 'Contract:Contract' %}" class="{% active_link 'Contract:Contract' %}">
+                            <span class="material-icons-sharp">person_outline</span>
+                            <span class="link-name">Clientes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'ContractsClientes:ContractsClientes' %}"
+                            class="{% active_link 'ContractsClientes:ContractsClientes' %}">
+                            <span class="material-icons-sharp">description</span>
+                            <span class="link-name">Acordos</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
         </li>
 

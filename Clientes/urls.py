@@ -1,5 +1,7 @@
 from django.urls import path, include
 from . import views
+from .api.GRUD.CustomerDetalhes.GetCustomerDetalhe import CustomerDetailAPI
+
 
 app_name = 'Clientes'
 
@@ -7,9 +9,10 @@ urlpatterns = [
     # A página principal
     path('', views.customer_dashboard, name='dashboard'),
 
-    # API para Clientes
+    # API para criar um novo Clientes
     path('api/customers/', views.customer_list_create_api, name='api_customer_list_create'),
-    path('api/customers/<int:pk>/', views.customer_detail_api, name='api_customer_detail'),
+    # extrair dados do cliente, editar, excluir.
+    path('api/customers/<int:pk>/', CustomerDetailAPI.as_view(), name='api_customer_detail'),
     
     # API para Serviços
     path('api/customers/<int:customer_pk>/services/', views.service_create_api, name='api_service_create'),

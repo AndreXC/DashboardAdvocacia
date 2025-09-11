@@ -14,11 +14,11 @@ import uuid
 from .api.POST.CustomerService.serviceCreate import CustomerService
 
 
-# View para renderizar a página principal
 def customer_dashboard(request):
-    #categorias
     direitos = AreaDireito.objects.all()
     return render(request, 'Clientes/Clientes.html', {'direitos': direitos})
+
+
 
 def contract_list_api(request, customer_id):
     # O get_object_or_404 está correto para garantir que o cliente exista.
@@ -121,59 +121,63 @@ def customer_list_create_api(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
-@require_http_methods(["GET", "PUT", "DELETE"])
-def customer_detail_api(request, pk):
-    try:
-        customer = Customer.objects.get(pk=pk)
-    except Customer.DoesNotExist:
-        return JsonResponse({'error': 'Cliente não encontrado'}, status=404)
 
-    if request.method == "GET":
-        services_data = []
-        for service in customer.services.all():
-            invoices_data = [{
-                'id': i.id,
-                'description': i.description,
-                'dueDate': i.due_date,
-                'value': i.value,
-                'status': i.status,
-            } for i in service.invoices.all().order_by('due_date')]
+
+
+
+# @require_http_methods(["GET", "PUT", "DELETE"])
+# def customer_detail_api(request, pk):
+#     try:
+#         customer = Customer.objects.get(pk=pk)
+#     except Customer.DoesNotExist:
+#         return JsonResponse({'error': 'Cliente não encontrado'}, status=404)
+
+#     if request.method == "GET":
+#         services_data = []
+#         for service in customer.services.all():
+#             invoices_data = [{
+#                 'id': i.id,
+#                 'description': i.description,
+#                 'dueDate': i.due_date,
+#                 'value': i.value,
+#                 'status': i.status,
+#             } for i in service.invoices.all().order_by('due_date')]
             
-            services_data.append({
-                'id': service.id,
-                'nomeServico': service.nome_servico,
-                'status': service.status,
-                'totalValue': service.total_value,
-                'invoices': invoices_data,
-                'protocolo': service.protocolo,
-                'areaDireito': service.area_direito.nome
-            })
+#             services_data.append({
+#                 'id': service.id,
+#                 'nomeServico': service.nome_servico,
+#                 'status': service.status,
+#                 'totalValue': service.total_value,
+#                 'invoices': invoices_data,
+#                 'protocolo': service.protocolo,
+#                 'areaDireito': service.area_direito.nome
+#             })
 
-        data = {
-            'id': customer.id,
-            'firstName': customer.first_name,
-            'lastName': customer.last_name,
-            'email': customer.email,
-            'phone': customer.phone,
-            'address': customer.address,
-            'company': customer.company,
-            'position': customer.position,
-            'photoUrl': customer.photo_url,
-            'services': services_data
-        }
-        return JsonResponse(data)
+#         data = {
+#             'id': customer.id,
+#             'firstName': customer.first_name,
+#             'lastName': customer.last_name,
+#             'email': customer.email,
+#             'phone': customer.phone,
+#             'address': customer.address,
+#             'company': customer.company,
+#             'position': customer.position,
+#             'photoUrl': customer.photo_url,
+#             'services': services_data
+#         }
+#         return JsonResponse(data)
 
-    elif request.method == "PUT":
-        data = json.loads(request.body)
-        # Atualiza os campos do cliente
-        for key, value in data.items():
-            setattr(customer, key, value)
-        customer.save()
-        return JsonResponse({'message': 'Cliente atualizado com sucesso'})
+#     elif request.method == "PUT":
+#         data = json.loads(request.body)
+#         # Atualiza os campos do cliente
+#         for key, value in data.items():
+#             setattr(customer, key, value)
+#         customer.save()
+#         return JsonResponse({'message': 'Cliente atualizado com sucesso'})
 
-    elif request.method == "DELETE":
-        customer.delete()
-        return JsonResponse({}, status=204) # 204 No Content
+#     elif request.method == "DELETE":
+#         customer.delete()
+#         return JsonResponse({}, status=204) 
 
 
 

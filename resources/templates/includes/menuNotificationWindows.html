@@ -1,0 +1,89 @@
+<div class="notification-area-container" id="notificationAreaContainer" role="region"
+    aria-label="Painel de Notificações">
+
+    <div class="focus-panel" id="focusPanel">
+        <div class="focus-header" id="focusHeader">
+            <span id="currentDayDate">segunda-feira, 8 de setembro</span>
+            <div class="panel-actions">
+
+                <i class="fas fa-chevron-up toggle-calendar-icon" id="toggleCalendarBtn"></i>
+            </div>
+        </div>
+
+        <div class="calendar-container" id="calendarContainer">
+            <div class="calendar-header">
+                <button id="prev-month-btn" class="month-nav-btn"><i class="fas fa-chevron-up"></i></button>
+                <span id="current-month-year" class="month-display">setembro de 2025</span>
+                <button id="next-month-btn" class="month-nav-btn"><i class="fas fa-chevron-down"></i></button>
+            </div>
+            <div class="calendar-grid">
+                <div class="day-of-week">D</div>
+                <div class="day-of-week">S</div>
+                <div class="day-of-week">T</div>
+                <div class="day-of-week">Q</div>
+                <div class="day-of-week">Q</div>
+                <div class="day-of-week">S</div>
+                <div class="day-of-week">S</div>
+            </div>
+        </div>
+
+        <div class="focus-controls">
+            <button class="control-btn minus"><i class="fas fa-minus"></i></button>
+            <span class="time-display">30 minutos</span>
+            <button class="control-btn plus"><i class="fas fa-plus"></i></button>
+            <button class="focus-btn"><i class="fas fa-play"></i> Foco</button>
+        </div>
+    </div>
+
+    <div class="notification-panel" id="notificationPanel">
+        <div class="panel-header">
+            <h3>Notificações</h3>
+            <button id="clear-all-btn" class="clear-all-button">Limpar tudo</button>
+        </div>
+        <div class="notification-list-wrapper" id="notificationListWrapper">
+            <ul class="notification-list" id="notificationList" aria-live="polite">
+            </ul>
+            <div class="no-notifications" id="noNotificationsMessage">
+                <p>Não há notificações novas</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="eventModalOverlay">
+    <div class="modal-content" id="eventModalContent">
+        <div class="modal-header">
+            <h3 id="modalTitle">Adicionar Evento</h3>
+            <button class="close-modal-btn" id="closeModalBtn" aria-label="Fechar modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="eventDetailsContainer">
+                <h4>Tipo do Evento</h4>
+                <p id="viewEventType"></p>
+                <h4>Mensagem</h4>
+                <p id="viewEventMessage"></p>
+            </div>
+
+            <div id="eventFormContainer">
+                <div class="form-group">
+                    <label for="eventType">Tipo do Evento</label>
+                    <input type="text" id="eventType" placeholder="Ex: Reunião, Aniversário...">
+                </div>
+                <div class="form-group">
+                    <label for="eventMessage">Mensagem</label>
+                    <textarea id="eventMessage" rows="3" placeholder="Detalhes do evento..."></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div id="add-mode-btns">
+                <button class="modal-btn cancel" id="cancelEventBtn">Cancelar</button>
+                <button class="modal-btn save" id="saveEventBtn">Salvar Evento</button>
+            </div>
+            <div id="view-mode-btns">
+                <button class="modal-btn delete" id="deleteEventBtn">Excluir Evento</button>
+                <button class="modal-btn close" id="closeDetailsBtn">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>

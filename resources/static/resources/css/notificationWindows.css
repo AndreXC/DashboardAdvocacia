@@ -1,0 +1,676 @@
+.demo-controls {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1001;
+}
+
+.demo-controls button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background-image: linear-gradient(to top, var(--accent-color), #0085ff);
+    color: var(--text-on-accent);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 122, 255, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.demo-controls button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 122, 255, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.demo-controls button:active {
+    transform: translateY(0);
+    background-image: linear-gradient(to bottom, var(--accent-color), #0085ff);
+}
+
+/* Container Principal */
+.notification-area-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 15px;
+    align-items: flex-end;
+    z-index: 1000;
+}
+
+/* Estilos Comuns dos Painéis */
+.notification-panel,
+.focus-panel {
+    width: 360px;
+    background-color: var(--panel-bg);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    color: var(--text-color-primary);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transform: translateX(120%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notification-area-container.open .notification-panel,
+.notification-area-container.open .focus-panel {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.notification-area-container.open .notification-panel {
+    transition-delay: 0.1s;
+}
+
+/* Cabeçalhos */
+.panel-header,
+.focus-header {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Botão Limpar Tudo */
+.clear-all-button {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.clear-all-button:hover {
+    color: var(--accent-color-dark);
+    background-color: var(--button-bg-light-hover);
+}
+
+/* Lista de Notificações */
+.notification-list-wrapper {
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+    transition: max-height 0.4s ease-in-out;
+}
+
+/* LÓGICA RESPONSIVA DO CALENDÁRIO */
+.focus-panel.calendar-open~.notification-panel .notification-list-wrapper {
+    max-height: 150px;
+}
+
+.notification-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.no-notifications {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-color-secondary);
+    font-size: 14px;
+}
+
+/* Item de Notificação */
+.notification-item {
+    display: flex;
+    position: relative;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+    animation: fadeInNotification 0.4s ease-out forwards;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: rgba(128, 128, 128, 0.1);
+}
+
+@keyframes fadeInNotification {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOutLeftToRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+.notification-item.dismissing {
+    animation: slideOutLeftToRight 0.4s ease-out forwards;
+}
+
+.notification-item .content p {
+    margin: 0;
+    font-size: 15px;
+}
+
+.notification-item .content .timestamp {
+    font-size: 12px;
+    color: var(--text-color-secondary);
+    margin-top: 4px;
+    display: block;
+}
+
+.close-notification-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+}
+
+.notification-item:hover .close-notification-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.close-notification-btn:hover {
+    background-color: var(--button-bg-light-hover);
+}
+
+/* Painel de Foco e Configurações */
+.focus-panel {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.focus-header {
+    cursor: pointer;
+}
+
+.focus-panel .panel-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.focus-header span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.toggle-calendar-icon {
+    font-size: 14px;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    padding: 5px;
+}
+
+.focus-panel.calendar-open .toggle-calendar-icon {
+    transform: rotate(180deg);
+}
+
+/* ======================================= */
+/* ESTILOS DO CALENDÁRIO                   */
+/* ======================================= */
+
+.calendar-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+    border-top: 1px solid transparent;
+}
+
+.focus-panel.calendar-open .calendar-container {
+    max-height: 300px;
+    padding-top: 10px;
+    padding-bottom: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 15px 20px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.month-nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.month-nav-btn:hover {
+    background-color: var(--button-bg-light-hover);
+}
+
+#prev-month-btn i {
+    transform: rotate(-90deg);
+}
+
+#next-month-btn i {
+    transform: rotate(90deg);
+}
+
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.day-of-week,
+.date-cell {
+    font-size: 13px;
+    color: var(--text-color-secondary);
+    padding: 5px;
+    font-weight: 500;
+}
+
+.date-cell {
+    color: var(--text-color-primary);
+    cursor: pointer;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.date-cell.other-month {
+    color: var(--text-color-secondary);
+    opacity: 0.5;
+    cursor: default;
+}
+
+.date-cell:not(.other-month):hover {
+    background-color: var(--button-bg-light-hover);
+}
+
+.date-cell.today {
+    background-color: var(--accent-color);
+    color: var(--text-on-accent);
+    font-weight: 700;
+}
+
+.date-cell.has-event {
+    position: relative;
+}
+
+.date-cell.has-event::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+}
+
+.date-cell.today.has-event::after {
+    background-color: var(--text-on-accent);
+}
+
+/* Focus Controls */
+.focus-controls {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.time-display {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 10px;
+    flex-grow: 1;
+    text-align: center;
+}
+
+/* Botões de Controle (+/-) Melhorados */
+.control-btn {
+    background-color: var(--button-bg-light);
+    color: var(--text-color-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+    background-color: var(--button-bg-light-hover);
+    border-color: var(--text-color-secondary);
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botão de Foco Principal Melhorado */
+.focus-btn {
+    background-image: linear-gradient(to top, var(--accent-color), #0085ff);
+    color: var(--text-on-accent);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 122, 255, 0.2);
+}
+
+.focus-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 122, 255, 0.3);
+}
+
+.focus-btn:active {
+    transform: translateY(0);
+    background-image: linear-gradient(to bottom, var(--accent-color), #0085ff);
+}
+
+.focus-btn i {
+    font-size: 14px;
+}
+
+/* Seletor de Tema */
+.theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color-secondary);
+    font-size: 16px;
+    padding: 5px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.theme-toggle:hover {
+    background-color: var(--button-bg-light-hover);
+}
+
+.theme-toggle .fa-sun {
+    display: none;
+}
+
+.theme-toggle .fa-moon {
+    display: block;
+}
+
+body.dark-theme .theme-toggle .fa-sun {
+    display: block;
+}
+
+body.dark-theme .theme-toggle .fa-moon {
+    display: none;
+}
+
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: var(--panel-bg);
+    color: var(--text-color-primary);
+    border-radius: 12px;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.open .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* ESTILOS ADICIONAIS PARA O MODAL DE VISUALIZAÇÃO DE EVENTO */
+#eventDetailsContainer {
+    display: none;
+    /* Começa oculto */
+}
+
+#eventDetailsContainer h4 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color-secondary);
+    margin: 15px 0 5px 0;
+}
+
+#eventDetailsContainer h4:first-child {
+    margin-top: 0;
+}
+
+#eventDetailsContainer p {
+    font-size: 16px;
+    color: var(--text-color-primary);
+    background-color: var(--button-bg-light);
+    padding: 10px;
+    border-radius: 8px;
+    margin: 0;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+#view-mode-btns {
+    display: none;
+    /* Começa oculto */
+}
+
+.modal-body .form-group {
+    margin-bottom: 15px;
+}
+
+.modal-body label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: var(--text-color-secondary);
+}
+
+.modal-body input,
+.modal-body textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--button-bg-light);
+    color: var(--text-color-primary);
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.modal-body textarea {
+    resize: vertical;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 10px;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-btn.cancel,
+.modal-btn.close {
+    background-color: var(--button-bg-light);
+    color: var(--text-color-primary);
+}
+
+.modal-btn.cancel:hover,
+.modal-btn.close:hover {
+    background-color: var(--button-bg-light-hover);
+}
+
+.modal-btn.save {
+    background-color: var(--accent-color);
+    color: var(--text-on-accent);
+}
+
+.modal-btn.save:hover {
+    background-color: var(--accent-color-dark);
+}
+
+.modal-btn.delete {
+    background-color: #ff3b30;
+    /* Vermelho para exclusão */
+    color: #fff;
+}
+
+.modal-btn.delete:hover {
+    background-color: #c70000;
+}
+
+
+/* ======================================================= */
+/* ESTILIZAÇÃO DA BARRA DE ROLAGEM (SCROLLBAR)               */
+/* ======================================================= */
+
+.notification-list-wrapper::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: transparent;
+}
+
+
+.notification-list-wrapper::-webkit-scrollbar {
+    width: 1px;
+    background-color: transparent;
+}
+
+.notification-list-wrapper::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+.notification-list-wrapper::-scrollbar-thumb-hover-bg
+
+/* Para Firefox */
+.notification-list-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb-bg) transparent;
+}

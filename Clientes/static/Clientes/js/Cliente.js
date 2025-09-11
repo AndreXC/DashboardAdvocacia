@@ -1,18 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // =================================================================================
-    // ESTADO DA APLICAÇÃO (STATE)
-    // =================================================================================
     let currentCustomerId = null;
     let currentServiceId = null;
     let isEditMode = false;
-    // Cache dos dados dos clientes para a busca no frontend.
     let customerCache = [];
 
 
-    // =================================================================================
-    // SELETORES DO DOM
-    // =================================================================================
     const searchInput = document.getElementById('search-input');
     const customerListTbody = document.getElementById('customer-list-tbody');
     const emptyState = document.getElementById('empty-state');
@@ -27,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const customerModal = document.getElementById('customer-modal');
     const serviceModal = document.getElementById('service-modal');
     const deleteConfirmationModal = document.getElementById('delete-confirmation-modal');
-    const alertModal = document.getElementById('alert-modal');
     const alertModalText = document.getElementById('alert-modal-text');
     const customerForm = document.getElementById('customer-form');
     const serviceForm = document.getElementById('service-form');
@@ -61,20 +53,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function updateSubmitButtonState() {
-        const hasService = newContractServiceSelect.options.length > 1; // tem opções além do "Selecione..."
+        const hasService = newContractServiceSelect.options.length > 1;
         const hasTemplate = newContractTemplateSelect.options.length > 1;
 
         ButtonSUbmitModalAddNewContract.disabled = !(hasService && hasTemplate);
     }
 
 
-
-    /////functions open modal CreateNewContract
     function closeNewContractModal() {
         newContractModal.style.display = 'none';
     }
 
-    // Função para abrir o modal e iniciar o preenchimento dinâmico com um ClientId específico
     function openNewContractModal(costumer) {
         newContractModal.style.display = 'flex';
         if (costumer) {
@@ -92,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closeNewContractModalBtn.addEventListener('click', closeNewContractModal);
     cancelNewContractBtn.addEventListener('click', closeNewContractModal);
 
-    // Fecha o modal se o usuário clicar fora dele
     window.onclick = function (event) {
         if (event.target == newContractModal) {
             closeNewContractModal();
@@ -129,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateSubmitButtonState();
             })
             .catch(error => {
-                console.error('Erro ao buscar modelos:', error);
+                showToast('error', 'Erro ao buscar modelos:' + error);
                 newContractTemplateSelect.innerHTML = '<option value="" disabled selected>Erro ao carregar modelos</option>';
                 updateSubmitButtonState();
             });
@@ -163,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateSubmitButtonState();
             })
             .catch(error => {
-                console.error('Erro ao buscar serviços:', error);
+                showToast('error', 'Erro ao buscar serviços:' + error);
                 newContractServiceSelect.innerHTML = '<option value="" disabled selected>Erro ao carregar serviços</option>';
                 updateSubmitButtonState();
             });
@@ -171,9 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function submitNewContractForm(event) {
         event.preventDefault();
-
-
-
         const clientId = SelectClientEstrutura.value;
         const serviceId = newContractServiceSelect.value;
         const templateId = newContractTemplateSelect.value;
@@ -199,14 +184,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            // Verifica a resposta e mostra o resultado
             if (data.success) {
                 showToast('success', 'Contrato Criado com sucesso!');
                 closeNewContractModal();
             } else {
-                // Exibe os erros na tela
                 const errorDiv = document.getElementById('form-errors');
-                errorDiv.innerHTML = ''; // Limpa erros anteriores
+                errorDiv.innerHTML = '';
                 for (const field in data.errors) {
                     data.errors[field].forEach(error => {
                         const p = document.createElement('p');
@@ -222,71 +205,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     newContractFormCliente.addEventListener('submit', submitNewContractForm);
 
-    // =================================================================================
-    // FUNÇÕES AUXILIARES E API
-    // =================================================================================
+
     const formatCurrency = (amount) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount);
     const formatDate = (dateString) => new Date(dateString).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
     const getCsrfToken = () => document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    const showAlert = (message) => {
-        alertModalText.textContent = message;
-        openModal(alertModal);
-    };
+
 
     const openModal = (modal) => modal.classList.add('show');
     const closeModal = (modal) => modal.classList.remove('show');
 
-    // Função centralizada para todas as requisições à API Django
-    // const apiRequest = async (url, method = 'GET', body = null) => {
-    //     const options = {
-    //         method,
-    //         headers: {
-    //             'Content-Type': 'application/json',
 
-    //             'X-CSRFToken': getCsrfToken(),
-    //         },
-    //     };
-    //     if (body) {
-    //         options.body = JSON.stringify(body);
-    //     }
-    //     try {
-    //         const response = await fetch(url, options);
-    //         if (!response.ok) {
-    //             const errorData = await response.json().catch(() => ({ error: `Erro HTTP! Status: ${response.status}` }));
-    //             throw new Error(errorData.error || `Erro desconhecido`);
-    //         }
-    //         if (response.status === 204) { // No Content
-    //             return null;
-    //         }
-    //         return response.json();
-    //     } catch (error) {
-    //         console.error('Erro na requisição API:', error);
-    //         showAlert(error.message);
-    //         throw error;
-    //     }
-    // };
 
     const apiRequest = async (url, method = 'GET', body = null) => {
         const options = {
             method,
             headers: {
-                // Adiciona o token CSRF, mas deixa o Content-Type para ser definido depois
                 'X-CSRFToken': getCsrfToken(),
             },
         };
 
         if (body) {
             if (body instanceof FormData) {
-                // SE FOR FORMDATA (ENVIO DE ARQUIVO):
-                // 1. Não defina 'Content-Type'. O navegador fará isso automaticamente
-                //    com o 'boundary' correto, que é essencial para uploads.
-                // 2. O corpo da requisição é o próprio objeto FormData.
                 options.body = body;
             } else {
-                // SE FOR QUALQUER OUTRA COISA (OBJETO JS NORMAL):
-                // 1. Defina o cabeçalho como JSON.
-                // 2. Converta o objeto para uma string JSON.
                 options.headers['Content-Type'] = 'application/json';
                 options.body = JSON.stringify(body);
             }
@@ -298,20 +240,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const errorData = await response.json().catch(() => ({ error: `Erro HTTP! Status: ${response.status}` }));
                 throw new Error(errorData.error || `Erro desconhecido`);
             }
-            if (response.status === 204) { // No Content
+            if (response.status === 204) {
                 return null;
             }
             return response.json();
         } catch (error) {
-            console.error('Erro na requisição API:', error);
-            showAlert(error.message);
+            showToast('error:', error.message);
             throw error;
         }
     };
-
-    // =================================================================================
-    // FUNÇÕES DE RENDERIZAÇÃO (manipulam o DOM)
-    // =================================================================================
 
     const renderCustomerList = (customers) => {
         customerListTbody.innerHTML = '';
@@ -370,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         services.forEach(service => {
             const row = document.createElement('tr');
-            row.dataset.serviceId = service.id; // ID do banco de dados
+            row.dataset.serviceId = service.id;
             row.className = service.id === currentServiceId ? 'selected' : '';
             const statusClass = service.status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             row.innerHTML = `
@@ -394,7 +331,6 @@ document.addEventListener('DOMContentLoaded', () => {
         invoicesTbody.innerHTML = '';
         currentServiceId = service.id;
 
-        // Re-renderiza a lista de serviços para mostrar a seleção
         document.querySelectorAll('#services-tbody tr').forEach(row => {
             row.classList.toggle('selected', row.dataset.serviceId == service.id);
         });
@@ -437,12 +373,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const displayCustomerDetails = async (customerId) => {
         try {
             containerMainCustomer = document.getElementById('customer-detail-view');
-            // Busca os dados completos do cliente, incluindo serviços e faturas, da API
             const customer = await apiRequest(`/api/customers/${customerId}/`);
             if (!customer) return;
 
 
-            
+
             if (isEditMode) await exitEditMode(false, customer);
             currentCustomerId = customer.id;
 
@@ -456,12 +391,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const contracts = await apiRequest(`/api/customers/${customerId}/contracts/`);
 
 
-            // Atualiza a classe 'selected' na lista
             document.querySelectorAll('#customer-list-tbody tr').forEach(row => {
                 row.classList.toggle('selected', row.dataset.customerId == customer.id);
             });
 
-            // Preenche o painel de detalhes
             document.getElementById('customer-photo').src = customer.photoUrl || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
             document.getElementById('customer-fullname').textContent = `${customer.firstName} ${customer.lastName}`;
 
@@ -480,11 +413,12 @@ document.addEventListener('DOMContentLoaded', () => {
             customerContent.classList.remove('hidden');
 
             setTimeout(() => {
-           containerMainCustomer.classList.add('fade-in-end');
-        }, 300); 
-        
+                containerMainCustomer.classList.add('fade-in-end');
+            }, 300);
+
         } catch (error) {
-            console.error("Falha ao buscar detalhes do cliente:", error);
+            showToast('error', "Falha ao buscar detalhes do cliente:" + error)
+
         }
     };
 
@@ -497,54 +431,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // const renderContractsList = (contracts) => {
-    //     const contractsTbody = document.getElementById('contracts-tbody');
-    //     contractsTbody.innerHTML = '';
-
-    //     if (contracts.length > 0) { 
-
-    //     contracts.forEach(contract => {
-    //         const row = document.createElement('tr');
-    //         row.dataset.contractId = contract.id;
-    //         row.innerHTML = `
-    //             <td>${contract.template}</td>
-    //             <td>${contract.status}</td>
-    //             <td>${new Date(contract.createdAt).toLocaleDateString()}</td>
-    //         `;
-    //         contractsTbody.appendChild(row);
-    //     });
-    //     } else {
-    //         const row = document.createElement('tr');
-    //         row.innerHTML = `<td colspan="3">Nenhum contrato encontrado.</td>`;
-    //         contractsTbody.appendChild(row);
-    //     }
-    // };
-
-    /**
-     * Renderiza a lista de contratos no painel de detalhes do cliente.
-     * @param {Array} contracts - Array de objetos de contrato.
-     */
     const renderContractsList = (contracts) => {
         const contractsTbody = document.getElementById('contracts-tbody');
-        contractsTbody.innerHTML = ''; // Limpa a tabela antes de adicionar as novas linhas
+        contractsTbody.innerHTML = '';
 
         if (contracts && contracts.length > 0) {
             contracts.forEach(contract => {
                 const row = document.createElement('tr');
                 row.dataset.contractId = contract.id;
 
-                // --- MELHORIA: Lógica para criar os botões de Ação ---
                 let actionsHtml = '';
-                // Usamos o 'statusCode' para a lógica e 'status' para exibição
                 if (contract.statusCode === 'PENDING' && contract.signingUrl) {
                     actionsHtml = `<a href="${contract.signingUrl}" class="button-primary" target="_blank">Assinar</a>`;
                 } else if (contract.statusCode === 'SIGNED' && contract.pdfUrl) {
                     actionsHtml = `<a href="${contract.pdfUrl}" class="button-secondary" target="_blank">Ver PDF</a>`;
                 } else {
-                    actionsHtml = '<span>-</span>'; // Nenhuma ação disponível
+                    actionsHtml = '<span>-</span>';
                 }
 
-                // --- CORREÇÃO: Colunas sincronizadas com o HTML e usando os dados da API ---
                 row.innerHTML = `
                     <td>${contract.template}</td>
                     <td>${contract.status}</td>
@@ -555,15 +459,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } else {
             const row = document.createElement('tr');
-            // O colspan foi atualizado para 4, correspondendo ao número de colunas
             row.innerHTML = `<td colspan="4" style="text-align: center;">Nenhum contrato encontrado.</td>`;
             contractsTbody.appendChild(row);
         }
     };
 
-    // =================================================================================
-    // LÓGICA DE EDIÇÃO E EXCLUSÃO (com chamadas de API)
-    // =================================================================================
 
     const enterEditMode = async () => {
         const customer = await apiRequest(`/api/customers/${currentCustomerId}/`);
@@ -600,15 +500,14 @@ document.addEventListener('DOMContentLoaded', () => {
             company: document.getElementById('edit-company').value,
             position: document.getElementById('edit-position').value,
         };
-        // Validação aqui se necessário...
 
         try {
             await apiRequest(`/api/customers/${currentCustomerId}/`, 'PUT', customerData);
             await exitEditMode(true);
-            await displayCustomerDetails(currentCustomerId); // Recarrega os dados atualizados
-            await loadAndStoreCustomers(); // Atualiza o cache para a busca
+            await displayCustomerDetails(currentCustomerId);
+            await loadAndStoreCustomers();
         } catch (error) {
-            console.error("Falha ao atualizar cliente:", error);
+            showToast('error', "Falha ao atualizar cliente:" + error);
         }
     };
 
@@ -625,7 +524,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await apiRequest(`/api/customers/${currentCustomerId}/`, 'DELETE');
 
-            // Remove da UI e do cache
             customerCache = customerCache.filter(c => c.id !== currentCustomerId);
             renderCustomerList(customerCache);
 
@@ -634,14 +532,10 @@ document.addEventListener('DOMContentLoaded', () => {
             emptyState.classList.remove('hidden');
             currentCustomerId = null;
         } catch (error) {
-            console.error("Falha ao excluir cliente:", error);
+            showToast('error', "Falha ao excluir cliente:" + error);
         }
     };
 
-
-    // =================================================================================
-    // MANIPULADORES DE EVENTOS (EVENT HANDLERS)
-    // =================================================================================
 
     const handleSearchInput = (e) => {
         const searchTerm = e.target.value.toLowerCase();
@@ -654,18 +548,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const handleCustomerSelect = (e) => {
         const row = e.target.closest('tr');
-         document.getElementById('customer-detail-view').classList.add('fade-in-start');
+        document.getElementById('customer-detail-view').classList.add('fade-in-start');
 
 
         if (row && row.dataset.customerId) {
             displayCustomerDetails(parseInt(row.dataset.customerId, 10));
         }
-    
+
     };
 
     const handleServiceSelect = async (e) => {
-        if (e.target.matches('.status-select')) return; // Ignora cliques no dropdown
-
+        if (e.target.matches('.status-select')) return;
         const row = e.target.closest('tr');
         if (row && row.dataset.serviceId) {
             const customer = await apiRequest(`/api/customers/${currentCustomerId}/`);
@@ -691,60 +584,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 await displayCustomerDetails(currentCustomerId);
             }
         } catch (error) {
-            console.error(`Falha ao atualizar status de ${entity}:`, error);
+            showToast('error', `Falha ao atualizar status de ${entity}:` + error);
         }
     };
 
-    // const handleCustomerFormSubmit = async (e) => {
-    //     e.preventDefault();
-    //     const formData = new FormData(customerForm);
-    //     const customerData = {
-    //         firstName: formData.get('firstName'), lastName: formData.get('lastName'),
-    //         email: formData.get('email'), phone: formData.get('phone'),
-    //         address: formData.get('address'), company: formData.get('company'),
-    //         position: formData.get('position'), photoUrl: formData.get('photoUrl'),
-    //         photo: formData.get('photoUpload') // Se estiver enviando arquivo, ajuste a API para aceitar multipart/form-data
-    //     };
-    //     // Validação...
-
-    //     try {
-    //         const newCustomer = await apiRequest('/api/customers/', 'POST', customerData);
-    //         customerCache.push(newCustomer);
-    //         renderCustomerList(customerCache);
-    //         await displayCustomerDetails(newCustomer.id);
-    //         closeModal(customerModal);
-    //         customerForm.reset();
-    //     } catch (error) {
-    //         console.error("Falha ao criar cliente:", error);
-    //     }
-    // };
 
 
     const handleCustomerFormSubmit = async (e) => {
         e.preventDefault();
 
-        // 1. Crie o FormData a partir do formulário. Ele contém TODOS os dados, incluindo o arquivo.
         const formData = new FormData(customerForm);
 
-        // Validação (pode ser feita diretamente no formData)
         if (!formData.get('firstName') || !formData.get('email')) {
-            showAlert('Nome e E-mail são obrigatórios.');
+            showToast('warning', 'Nome e E-mail são obrigatórios.');
             return;
         }
 
         try {
             const newCustomer = await apiRequest('/api/customers/', 'POST', formData);
 
-            // Sua lógica de sucesso continua a mesma
             customerCache.push(newCustomer);
             renderCustomerList(customerCache);
             await displayCustomerDetails(newCustomer.id);
             closeModal(customerModal);
             customerForm.reset();
-            // Lembre-se de chamar a função que reseta o visual do drag-and-drop também
-            resetDragDropComponent(); // Use o nome correto da sua função de reset
+            resetDragDropComponent();
+
         } catch (error) {
-            console.error("Falha ao criar cliente:", error);
+            showToast('error', "Falha ao criar cliente:" + error);
         }
     };
     const handleServiceFormSubmit = async (e) => {
@@ -755,24 +622,25 @@ document.addEventListener('DOMContentLoaded', () => {
             name: document.getElementById('serviceName').value,
             description: document.getElementById('serviceDescription').value,
             paymentType: paymentTypeSelect.value,
-            firstPaymentDate: firstPaymentDateInput.value, // <-- Aqui
+            firstPaymentDate: firstPaymentDateInput.value,
             protocolo: document.getElementById('ServiceProtocolo').value,
             area_direito: parseInt(document.getElementById('AreaDireitoAdmin').value, 10) || null,
-            totalValue: parseFloat(document.getElementById('serviceValue').value), // <-- Aqui
+            totalValue: parseFloat(document.getElementById('serviceValue').value),
             entryValue: parseFloat(document.getElementById('serviceEntryValue').value) || 0,
-            installments: parseInt(document.getElementById('serviceInstallments').value, 10), // <-- Aqui
+            installments: parseInt(document.getElementById('serviceInstallments').value, 10),
             interest: parseFloat(document.getElementById('serviceInterest').value) || 0,
         };
-        if (!serviceData.firstPaymentDate) return showAlert('Por favor, informe a data do primeiro pagamento.');
+        if (!serviceData.firstPaymentDate) {
+            return showToast('warning', 'Por favor, informe a data do 1º pagamento do serviço.');
+        }
 
         try {
-            console.log(serviceData);
             await apiRequest(`/api/customers/${currentCustomerId}/services/`, 'POST', serviceData);
             await displayCustomerDetails(currentCustomerId);
             closeModal(serviceModal);
             serviceForm.reset();
         } catch (error) {
-            console.error("Falha ao adicionar serviço:", error);
+            showToast("error", "Falha ao adicionar serviço:", error);
         }
     };
 
@@ -782,9 +650,6 @@ document.addEventListener('DOMContentLoaded', () => {
         parcelamentoGroup.classList.toggle('hidden', !isParcelado);
     };
 
-    // =================================================================================
-    // INICIALIZAÇÃO E EVENT LISTENERS
-    // =================================================================================
     const setupEventListeners = () => {
         searchInput.addEventListener('input', handleSearchInput);
         customerListTbody.addEventListener('click', handleCustomerSelect);
@@ -808,7 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentCustomerId) {
                 serviceForm.reset();
                 openModal(serviceModal);
-            } else showAlert('Selecione um cliente primeiro.');
+            } else showToast('warning', 'Selecione um cliente primeiro.');
         });
 
         customerForm.addEventListener('submit', handleCustomerFormSubmit);
@@ -829,13 +694,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadAndStoreCustomers = async () => {
         try {
-            // Busca os dados simplificados dos clientes para a lista e a busca
             customerCache = await apiRequest('/api/customers/');
-            // A lista inicial já foi renderizada pelo Django, mas isso garante que o cache está populado.
-            // Para garantir consistência, podemos re-renderizar.
             renderCustomerList(customerCache);
         } catch (error) {
-            console.error("Falha ao carregar lista inicial de clientes:", error);
+            showToast("error", "Falha ao carregar lista inicial de clientes:" + error);
         }
     };
 

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Componente de Perfil</title>
+    <style>
+        /* CSS (O Estilo) */
+
+        /* Importa uma fonte similar à da imagem para um melhor resultado */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a1a1a;
+            /* Fundo escuro para destacar o componente */
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+        }
+
+        .user-profile {
+            display: inline-flex;
+            /* Usa flex para alinhar itens na horizontal */
+            align-items: center;
+            /* Centraliza verticalmente */
+            background-color: #000;
+            /* Fundo preto do componente */
+            color: #fff;
+            /* Cor do texto principal */
+            padding: 12px 16px;
+            border-radius: 50px;
+            /* Bordas bem arredondadas */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            max-width: 250px;
+        }
+
+        .user-profile:hover {
+            background-color: #222;
+            /* Efeito suave ao passar o mouse */
+        }
+
+        /* Container para a imagem e a notificação */
+        .avatar-container {
+            position: relative;
+            /* Essencial para posicionar a notificação */
+            margin-right: 12px;
+            /* Espaço entre a imagem e o texto */
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            /* Deixa a imagem redonda */
+            object-fit: cover;
+            /* Garante que a imagem preencha o espaço sem distorcer */
+            display: block;
+        }
+
+        .notification-badge {
+            position: absolute;
+            /* Posição absoluta em relação ao .avatar-container */
+            top: -2px;
+            right: -2px;
+
+            width: 20px;
+            height: 20px;
+            background-color: #e53935;
+            /* Vermelho da notificação */
+            color: white;
+            border-radius: 50%;
+            /* Deixa a notificação redonda */
+            border: 2px solid #000;
+            /* Borda preta para separar da imagem */
+
+            /* Centraliza o número dentro da notificação */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            /* Coloca o nome em cima do @username */
+        }
+
+        .user-name {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .user-handle {
+            font-size: 14px;
+            color: #71767b;
+            /* Cinza para o @username */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="user-profile" id="userProfile">
+        <div class="avatar-container">
+            <img src="https://i.pravatar.cc/150?u=bogdan" alt="Foto de Bogdan Nikitin" class="avatar">
+            <span class="notification-badge" id="notificationCount">2</span>
+        </div>
+        <div class="user-info">
+            <span class="user-name">Bogdan Nikitin</span>
+            <span class="user-handle">@Nixtio</span>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript (A Interatividade - Opcional)
+
+        // Seleciona os elementos que vamos manipular
+        const userProfile = document.getElementById('userProfile');
+        const notificationCount = document.getElementById('notificationCount');
+
+        let currentNotifications = 2;
+
+        // Adiciona um evento de clique ao componente
+        userProfile.addEventListener('click', () => {
+            // Zera as notificações ao clicar
+            currentNotifications = 0;
+
+            // Pega o elemento da notificação
+            const badge = document.getElementById('notificationCount');
+
+            // Esconde a notificação
+            if (badge) {
+                badge.style.display = 'none';
+            }
+
+            alert('Notificações lidas!');
+        });
+
+        // Exemplo: Simula a chegada de uma nova notificação após 5 segundos
+        setTimeout(() => {
+            currentNotifications++; // Aumenta o número
+            const badge = document.getElementById('notificationCount');
+            if (badge) {
+                badge.innerText = currentNotifications; // Atualiza o texto
+                badge.style.display = 'flex'; // Garante que ela esteja visível
+                alert('Nova notificação!');
+            }
+        }, 5000);
+    </script>
+
+</body>
+
+</html>
