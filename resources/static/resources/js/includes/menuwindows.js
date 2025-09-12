@@ -1,14 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // =======================================
-    // SELEÇÃO DE ELEMENTOS DO DOM
-    // =======================================
-    const body = document.body;
 
-
-    const addNotificationBtn = document.getElementById('add-notification-btn');
-
-    // // Painel de Notificações
-    // const notificationPanel = document.getElementById('notificationPanel');
     const notificationList = document.getElementById('notificationList');
     const noNotificationsMessage = document.getElementById('noNotificationsMessage');
     const clearAllBtn = document.getElementById('clear-all-btn');
@@ -61,9 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // =======================================
-    // LÓGICA DO MODAL DE EVENTOS
-    // =======================================
     function showModal(date) {
         selectedDate = date;
         // Verifica se já existe um evento para a data selecionada
@@ -125,9 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
     saveEventBtn.addEventListener('click', saveEvent);
     deleteEventBtn.addEventListener('click', deleteEvent);
 
-    // =======================================
-    // LÓGICA DO CALENDÁRIO
-    // =======================================
     function renderCalendar() {
         calendarStateDate.setDate(1);
         const month = calendarStateDate.getMonth();
@@ -247,21 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // addNotificationBtn.addEventListener('click', () => {
-    //     const exampleNotifications = [
-    //         { icon: 'fas fa-file-invoice', message: 'Sua fatura de Setembro já está disponível.' },
-    //         { icon: 'fas fa-shopping-cart', message: 'Nova compra realizada na sua conta.' },
-    //         { icon: 'fas fa-calendar-check', message: 'Lembrete: Reunião de equipe hoje às 15h.' }
-    //     ];
-    //     const random = exampleNotifications[Math.floor(Math.random() * exampleNotifications.length)];
-    //     addNotification(random.icon, random.message);
-    // });
-
-    // =======================================
-    // INICIALIZAÇÃO
-    // =======================================
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    applyTheme(savedTheme);
     updateDisplayDate();
     renderCalendar();
     updateNotificationViewState();

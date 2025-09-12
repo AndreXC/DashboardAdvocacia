@@ -5,6 +5,8 @@ from django.http import HttpRequest
 import json
 from ...comuns.Getareaservice import get_area_direito
 from datetime import date, timedelta
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 
 class CustomerService:
     def __init__(self, customer_id: int, request: HttpRequest):
@@ -78,3 +80,16 @@ class CustomerService:
         except Exception as e:
             self.StrErr += ' :'  + str(e.args)
             return False, self.StrErr
+
+
+
+
+@require_http_methods(["POST"])
+def service_create_api(request, customer_pk) -> JsonResponse:
+    InstanceCustomerService = CustomerService(customer_pk, request)
+    success, StrErr = InstanceCustomerService._create_service()
+    
+    if not success:
+        return JsonResponse({'error': StrErr}, status=500)
+    
+    return JsonResponse({'message': 'Serviço criado com sucesso.'}, status=201)

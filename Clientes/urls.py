@@ -1,6 +1,14 @@
 from django.urls import path, include
 from . import views
-from .api.GRUD.CustomerDetalhes.GetCustomerDetalhe import CustomerDetailAPI
+from . import imports as imp
+
+
+
+
+
+
+
+
 
 
 app_name = 'Clientes'
@@ -8,17 +16,16 @@ app_name = 'Clientes'
 urlpatterns = [
     # A página principal
     path('', views.customer_dashboard, name='dashboard'),
-
     # API para criar um novo Clientes
     path('api/customers/', views.customer_list_create_api, name='api_customer_list_create'),
     # extrair dados do cliente, editar, excluir.
-    path('api/customers/<int:pk>/', CustomerDetailAPI.as_view(), name='api_customer_detail'),
-    
+    path('api/customers/<int:pk>/', imp.CustomerDetailAPI.as_view(), name='api_customer_detail'),
+   
+   
     # API para Serviços
-    path('api/customers/<int:customer_pk>/services/', views.service_create_api, name='api_service_create'),
-    path('api/customers/<int:customer_id>/contracts/', views.contract_list_api, name='api_contract_list'),
+    path('api/customers/<int:customer_pk>/services/', imp.service_create_api, name='api_service_create'),
+    path('api/customers/<int:customer_id>/contracts/', imp.contract_list_api, name='api_contract_list'),
     path('api/services/<int:pk>/', views.service_detail_api, name='api_service_detail'),
-    
     # API para Faturas (apenas para atualizar status)
     path('api/invoices/<int:pk>/', views.invoice_detail_api, name='api_invoice_detail'),
     

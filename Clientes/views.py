@@ -20,36 +20,36 @@ def customer_dashboard(request):
 
 
 
-def contract_list_api(request, customer_id):
-    # O get_object_or_404 está correto para garantir que o cliente exista.
-    customer = get_object_or_404(Customer, id=customer_id)
+# def contract_list_api(request, customer_id):
+#     # O get_object_or_404 está correto para garantir que o cliente exista.
+#     customer = get_object_or_404(Customer, id=customer_id)
     
-    # Busca os contratos desse cliente usando a query otimizada que você sugeriu.
-    contracts_list = Contract.objects.filter(
-        client=customer
-    ).select_related('client', 'template').order_by('-created_at')
+#     # Busca os contratos desse cliente usando a query otimizada que você sugeriu.
+#     contracts_list = Contract.objects.filter(
+#         client=customer
+#     ).select_related('client', 'template').order_by('-created_at')
     
-    # 1. Preparamos uma lista vazia para armazenar os dados dos contratos.
-    data = []
+#     # 1. Preparamos uma lista vazia para armazenar os dados dos contratos.
+#     data = []
 
-    # 2. Iteramos sobre a queryset de contratos.
-    for contract in contracts_list:
+#     # 2. Iteramos sobre a queryset de contratos.
+#     for contract in contracts_list:
          
-        # signing_url = reverse('ContractsClientes:sign_contract', args=[contract.signature_link_id])
-        signing_url = reverse('ContractsClientes:sign', args=[contract.signature_link_id])
-        pdf_url = reverse('ContractsClientes:view_pdf', args=[contract.id])
+#         # signing_url = reverse('ContractsClientes:sign_contract', args=[contract.signature_link_id])
+#         signing_url = reverse('ContractsClientes:sign', args=[contract.signature_link_id])
+#         pdf_url = reverse('ContractsClientes:view_pdf', args=[contract.id])
 
-        data.append({
-            'id': contract.id,
-            'template': contract.template.title if contract.template else 'Modelo Removido',
-            'status': contract.get_status_display(),
-            'statusCode': contract.status,           
-            'signingUrl': request.build_absolute_uri(signing_url), # URL completa para assinar
-            'pdfUrl': request.build_absolute_uri(pdf_url) if pdf_url else None, # URL completa do PDF
-            'createdAt': contract.created_at.strftime('%d/%m/%Y'),
-        })
+#         data.append({
+#             'id': contract.id,
+#             'template': contract.template.title if contract.template else 'Modelo Removido',
+#             'status': contract.get_status_display(),
+#             'statusCode': contract.status,           
+#             'signingUrl': request.build_absolute_uri(signing_url), # URL completa para assinar
+#             'pdfUrl': request.build_absolute_uri(pdf_url) if pdf_url else None, # URL completa do PDF
+#             'createdAt': contract.created_at.strftime('%d/%m/%Y'),
+#         })
     
-    return JsonResponse(data, safe=False)
+#     return JsonResponse(data, safe=False)
 
 @require_http_methods(["GET", "POST"])
 def customer_list_create_api(request):
@@ -181,14 +181,14 @@ def customer_list_create_api(request):
 
 
 
-@require_http_methods(["POST"])
-def service_create_api(request, customer_pk):
-    InstanceCustomerService = CustomerService(customer_pk, request)
-    success, StrErr = InstanceCustomerService._create_service()
+# @require_http_methods(["POST"])
+# def service_create_api(request, customer_pk):
+#     InstanceCustomerService = CustomerService(customer_pk, request)
+#     success, StrErr = InstanceCustomerService._create_service()
     
-    if not success:
-        return JsonResponse({'error': StrErr}, status=500)
-    return JsonResponse({'message': 'Serviço criado com sucesso.'}, status=201)
+#     if not success:
+#         return JsonResponse({'error': StrErr}, status=500)
+#     return JsonResponse({'message': 'Serviço criado com sucesso.'}, status=201)
 
 
 

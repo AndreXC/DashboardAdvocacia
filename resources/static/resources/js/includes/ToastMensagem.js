@@ -53,4 +53,5 @@ function createToast(type, message, duration = 5000) {
 
 function showToast(type, Mensagem) {
     createToast(type, Mensagem);
+    addNotification(type, Mensagem);
 }

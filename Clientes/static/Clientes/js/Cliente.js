@@ -666,6 +666,8 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteConfirmBtn.addEventListener('click', handleDeleteConfirm);
 
         addNewCustomerBtn.addEventListener('click', () => {
+
+            console.log('teste')
             customerForm.reset();
             openModal(customerModal);
         });

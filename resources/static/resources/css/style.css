@@ -5,8 +5,8 @@
     --color-primary: #7380ec;
     --primary-color: #0056b3;
     --primary-hover: #0056b3;
-    --bg-color: #f8f9fa;
-    --panel-bg: #ffffff;
+    --bg-color: #F5F5F5;
+    --panel-bg: #F8F8FF;
     --border-color: #dee2e6;
     --text-color: #212529;
     --text-muted: #6c757d;
@@ -236,7 +236,6 @@ header .theme-toggler span.active {
     font-size: 2rem;
 }
 
-/* --- Base da Sidebar --- */
 aside {
     position: fixed;
     left: 0;
@@ -244,7 +243,7 @@ aside {
     height: 95.5%;
     margin: 10px;
     width: 260px;
-    background: var(--aside-background);
+    background: var(--panel-bg);
     padding: 6px 14px;
     z-index: 1000;
     transition: width var(--transition-speed) ease, padding var(--transition-speed) ease;
