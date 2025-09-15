@@ -106,7 +106,6 @@
 /* Lista de Notificações */
 .notification-list-wrapper {
     max-height: calc(100vh - 250px);
-    overflow-y: auto;
     transition: max-height 0.4s ease-in-out;
 }
 
@@ -128,6 +127,7 @@
     padding: 40px 20px;
     color: var(--text-color-secondary);
     font-size: 14px;
+    overflow: hidden;
 }
 
 /* Item de Notificação */
@@ -135,10 +135,13 @@
     display: flex;
     position: relative;
     padding: 12px 20px;
-    border-bottom: 1px solid var(--border-color);
-    transition: background-color 0.2s ease;
+    border-bottom: none; /* Removida a borda inferior */
+    transition: all 0.4s ease; /* Transição para os outros estados (como hover) */
     animation: fadeInNotification 0.4s ease-out forwards;
+    overflow: hidden; /* Importante para que a animação de altura funcione corretamente */
+    gap: 10px;
 }
+
 
 .notification-item:last-child {
     border-bottom: none;
@@ -148,52 +151,78 @@
     background-color: rgba(128, 128, 128, 0.1);
 }
 
-@keyframes fadeInNotification {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideOutLeftToRight {
+@keyframes slideOutRight {
     from {
         opacity: 1;
         transform: translateX(0);
     }
-
     to {
         opacity: 0;
         transform: translateX(100%);
     }
 }
 
+@keyframes fadeInNotification {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* .notification-item.dismissing {
+    animation: slideOutRight 0.4s ease-out forwards;
+}
+ */
+
+
+ 
+@keyframes slideOutLeftToRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+        height: auto;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+        height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
 .notification-item.dismissing {
     animation: slideOutLeftToRight 0.4s ease-out forwards;
+}
+.notification-item .content {
+    flex-grow: 1; /* Permite que o conteúdo ocupe o espaço restante */
 }
 
 .notification-item .content p {
     margin: 0;
     font-size: 15px;
+    line-height: 1.4;
+    color: var(--text-color-primary);
 }
 
 .notification-item .content .timestamp {
     font-size: 12px;
     color: var(--text-color-secondary);
-    margin-top: 4px;
+    margin-top: 5px;
     display: block;
 }
-
 .close-notification-btn {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 24px;
-    height: 24px;
+    top: 10px; /* Posição ajustada */
+    right: 10px; /* Posição ajustada */
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -202,9 +231,9 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    opacity: 0.5;
-    transform: scale(0.8);
-    transition: all 0.2s ease;
+    opacity: 0; /* Começa invisível para não poluir a tela */
+    transition: all 0.3s ease;
+    font-size: 14px;
 }
 
 .notification-item:hover .close-notification-btn {
@@ -213,9 +242,9 @@
 }
 
 .close-notification-btn:hover {
-    background-color: var(--button-bg-light-hover);
+    background-color: var(--bg-hover-subtle);
+    color: var(--text-color-primary);
 }
-
 /* Painel de Foco e Configurações */
 .focus-panel {
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);

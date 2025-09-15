@@ -40,6 +40,7 @@
                 </div>
 
             </div>
+             <div class="separador-vertical"></div>
 
             {% csrf_token %}
             <div class="customer-detail-panel" id="customer-detail-view">
@@ -206,25 +207,38 @@
     <script src="{% static 'Clientes/js/Cliente.js' %}"></script>
     <script src="{% static 'Clientes/js/dragdropFotoClient.js' %}"></script>
     <script src="{% static 'resources/js/includes/subMenus.js' %}"></script>
-    <!-- <script src="{% static 'resources/js/includes/theme.js' %}"></script> -->
+    <script src="{% static 'resources/js/includes/menuwindows.js' %}"></script>
+    <script src="{% static 'resources/js/includes/ToastMensagem.js' %}"></script>
+     {% comment %} <script src="{% static 'resources/js/includes/theme.js' %}"></script> {% endcomment %}
 
 
 
-    <script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const userProfile = document.getElementById('userProfile');
+                const notificationAreaContainer = document.getElementById('notificationAreaContainer');
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const userProfile = document.getElementById('userProfile');
+                        // Para adicionar uma notificação de sucesso:
+                AdicionarNotificacao('success', 'Evento de aniversário salvo com sucesso!');
 
-            const notificationAreaContainer = document.getElementById('notificationAreaContainer');
+                // Para adicionar um aviso:
+                AdicionarNotificacao('warning', 'O backup do sistema está atrasado.');
+
+                // Para adicionar uma notificação de erro:
+                AdicionarNotificacao('error', 'Falha ao conectar com o servidor.');
+
+                // Para uma notificação de documento:
+                AdicionarNotificacao('document', 'Novo documento "Relatório Mensal" disponível para leitura.');
+
+                // Se o tipo não existir, ele usará o padrão 'info':
+                AdicionarNotificacao('invalido', 'Tipo de notificação inválido, exibindo padrão.');
 
 
-            userProfile.addEventListener('click', () => {
-                notificationAreaContainer.classList.toggle('open');
+                userProfile.addEventListener('click', () => {
+                    notificationAreaContainer.classList.toggle('open');
+                });
             });
-
-        });
-
-    </script>
+        </script>
 
     {% endblock %}
 

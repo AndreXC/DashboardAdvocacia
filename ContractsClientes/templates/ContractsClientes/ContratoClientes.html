@@ -98,71 +98,72 @@
 <body>
     {% include "includes/sidebar.html" %}
 
-    <main class="main-content">
-        <div class="content-container-app">
-            <header>
+    <main class="main-container">
+        <header>
                 <h1>Acordos com Clientes</h1>
                 {% include "includes/theme.html" %}
-            </header>
+        </header>   
+        <div class="content-container-app">
+         
+            
+                {% include "includes/search.html" %}
 
-            {% include "includes/search.html" %}
+                <div class="table-container" style="width: 100% !important;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Modelo do Contrato</th>
+                                <th>Protocolo do Serviço</th>
+                                <th>Data de Criação</th>
+                                <th>Status</th>
+                                <th>Link de Assinatura</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contract-list-tbody">
+                            {% for contract in contracts %}
+                            <!-- Adicionados os data-attributes para o JavaScript -->
+                            <tr data-contract-id="{{ contract.id }}" data-status="{{ contract.status }}"
+                                data-pdf-url="{% if contract.status == 'SIGNED' %}{% url 'ContractsClientes:view_pdf' contract.id %}{% endif %}"
+                                data-sign-link="{{ request.scheme }}://{{ request.get_host }}{% url 'ContractsClientes:sign' contract.signature_link_id %}">
 
-            <div class="table-container" style="width: 100% !important;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Modelo do Contrato</th>
-                            <th>Protocolo do Serviço</th>
-                            <th>Data de Criação</th>
-                            <th>Status</th>
-                            <th>Link de Assinatura</th>
-                        </tr>
-                    </thead>
-                    <tbody id="contract-list-tbody">
-                        {% for contract in contracts %}
-                        <!-- Adicionados os data-attributes para o JavaScript -->
-                        <tr data-contract-id="{{ contract.id }}" data-status="{{ contract.status }}"
-                            data-pdf-url="{% if contract.status == 'SIGNED' %}{% url 'ContractsClientes:view_pdf' contract.id %}{% endif %}"
-                            data-sign-link="{{ request.scheme }}://{{ request.get_host }}{% url 'ContractsClientes:sign' contract.signature_link_id %}">
-
-                            <td>{{ contract.client.full_name }}</td>
-                            <td>{{ contract.template.title }}</td>
-                            <td>{{ contract.service.protocolo }}</td>
-                            <td>{{ contract.created_at|date:"d/m/Y H:i" }}</td>
-                            <td>
-                                {% if contract.status == 'SIGNED' %}
-                                <span class="status-badge status-signed">
-                                    <span class="status-dot"></span> Assinado
-                                </span>
-                                {% else %}
-                                <span class="status-badge status-pending">
-                                    <span class="status-dot"></span> Pendente
-                                </span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if contract.status == 'PENDING' %}
-                                <div class="copy-link-wrapper">
-                                    <input type="text" class="link-input"
-                                        value="{{ request.scheme }}://{{ request.get_host }}{% url 'ContractsClientes:sign' contract.signature_link_id %}"
-                                        readonly>
-                                    <button type="button" class="copy-btn" title="Copiar link">
-                                        <i class="fa-regular fa-copy"></i>
-                                    </button>
-                                </div>
-                                {% else %}
-                                Assinado
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center">Nenhum contrato gerado.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                <td>{{ contract.client.full_name }}</td>
+                                <td>{{ contract.template.title }}</td>
+                                <td>{{ contract.service.protocolo }}</td>
+                                <td>{{ contract.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if contract.status == 'SIGNED' %}
+                                    <span class="status-badge status-signed">
+                                        <span class="status-dot"></span> Assinado
+                                    </span>
+                                    {% else %}
+                                    <span class="status-badge status-pending">
+                                        <span class="status-dot"></span> Pendente
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if contract.status == 'PENDING' %}
+                                    <div class="copy-link-wrapper">
+                                        <input type="text" class="link-input"
+                                            value="{{ request.scheme }}://{{ request.get_host }}{% url 'ContractsClientes:sign' contract.signature_link_id %}"
+                                            readonly>
+                                        <button type="button" class="copy-btn" title="Copiar link">
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    {% else %}
+                                    Assinado
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">Nenhum contrato gerado.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
             </div>
 
             <!-- Container para os Botões Flutuantes (FAB) -->
@@ -183,16 +184,18 @@
                 </button>
             </div>
         </div>
+
+          {% include "ContractsClientes/Modal/AddNewContratoCliente.html" %}
     </main>
 
-    {% include "ContractsClientes/Modal/AddNewContratoCliente.html" %}
+  
 
     {% block scripts %}
     <script src="{% static 'ContractsClientes/js/ModalContractClientes.js' %}"></script>
     <script src="{% static 'ContractsClientes/js/CopyLinkModalCliente.js' %}"></script>
-    <script src="{% static 'resources/js/includes/theme.js' %}"></script>
+    {% comment %} <script src="{% static 'resources/js/includes/theme.js' %}"></script> {% endcomment %}
     <script src="{% static 'ContractsClientes/js/ModalSubmitCreateNewContrato.js' %}"></script>
-
+    <script src="{% static 'resources/js/includes/subMenus.js' %}"></script>
 
     <script>
         // --- SCRIPT PARA A NOVA FUNCIONALIDADE DE AÇÕES ---

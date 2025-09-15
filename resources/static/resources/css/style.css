@@ -6,7 +6,7 @@
     --primary-color: #0056b3;
     --primary-hover: #0056b3;
     --bg-color: #F5F5F5;
-    --panel-bg: #F8F8FF;
+    --panel-bg: #F5F5F5;
     --border-color: #dee2e6;
     --text-color: #212529;
     --text-muted: #6c757d;
@@ -160,15 +160,21 @@ header {
     width: 35%;
     /* Ajustado para melhor proporção */
     min-width: 350px;
-    background-color: var(--panel-bg);
+    /* background-color: var(--panel-bg); */
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); */
     margin: 27px;
     border-radius: 10px;
 }
 
+
+.separador-vertical {
+  width: 3px; /* Largura da linha vertical */
+  height: 100%; /* Altura da linha, ajuste conforme necessário */
+  background-color: #   ; /* Cor da linha */
+}
 /* CORRIGIDO: Painel de detalhes do cliente */
 /* .customer-detail-panel {
     width: 65%;
@@ -183,10 +189,10 @@ header {
     width: 65%;
     padding: 2.5rem;
     overflow-y: auto;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); */
     margin: 27px;
     border-radius: 10px;
-    background-color: var(--panel-bg);
+    /* background-color: var(--panel-bg); */
 }
 
 header .header-right {
@@ -556,7 +562,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background-color: var(--panel-bg);
+    /* background-color: var(--panel-bg); */
 }
 
 .list-header h3 {
