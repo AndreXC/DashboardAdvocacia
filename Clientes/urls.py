@@ -30,3 +30,5 @@ urlpatterns = [
     path('api/invoices/<int:pk>/', views.invoice_detail_api, name='api_invoice_detail'),
     
 ]
+
+# {% include "includes/menuNotificationWindows.html" %}

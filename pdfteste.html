@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Contrato</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+
+        body {
+            font-family: 'Helvetica', sans-serif;
+            font-size: 10pt;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        /* --- Estilos do cabeçalho --- */
+        .header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        .header img {
+            max-width: 250px;
+            height: auto;
+            margin-right: 20px;
+        }
+
+        .header-text {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #555;
+            text-transform: uppercase;
+            /* Deixa o texto em maiúsculas */
+            letter-spacing: 1px;
+            /* Adiciona um pequeno espaçamento entre as letras */
+        }
+
+        /* --- Estilos da assinatura (mantidos do exemplo anterior) --- */
+        .signature-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-top: 50px;
+        }
+
+        .signature-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px 25px;
+            background-color: #f9f9f9;
+        }
+
+        .signature-image-block {
+            margin-right: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .signature-image {
+            max-width: 200px;
+            height: auto;
+            border-bottom: 1px dashed #666;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+
+        .digital-signature-text-block {
+            line-height: 1.6;
+            font-size: 9pt;
+        }
+
+        .digital-signature-text-block p {
+            margin: 0;
+        }
+
+        .signature-text-bold {
+            font-weight: bold;
+            font-size: 10pt;
+            color: #1a1a1a;
+            text-transform: uppercase;
+        }
+
+        .verification-details {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid;
+            font-size: 8pt;
+            color: #000000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <img src="./resources/static/resources/img/logo.png" alt="Logo da Empresa">
+        <span class="header-text">Raquel Machado Advocacia</span>
+    </div>
+
+
+
+    <div class="signature-container">
+        <div class="signature-box">
+            <div class="signature-image-block">
+                <img src="./signatures/assinatura_cliente_andre_dias_protocolo_000101.png" alt="Assinatura Digital"
+                    class="signature-image">
+                <p>Assinatura Digital</p>
+            </div>
+            <div class="digital-signature-text-block">
+                <p><span class="signature-text-bold">Assinado Digitalmente por:</span></p>
+                <p>Andre Luiz Martins Dias</p>
+                <div class="verification-details">
+                    <p>CPF: 515.125.048-58</p>
+                    <p>Protocolo: 00010258158212</p>
+                    <p>Data: 29/09/2003</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

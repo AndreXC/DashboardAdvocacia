@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         customerListTbody.innerHTML = '';
 
         if (!customers || customers.length === 0) {
-            customerListTbody.innerHTML = '<tr><td colspan="2">Nenhum cliente encontrado.</td></tr>';
+            customerListTbody.innerHTML = '<tr><td colspan="4">Nenhum cliente encontrado.</td></tr>';
             return;
         }
 
@@ -265,13 +265,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
             row.innerHTML = `
-            <td>
+            <td>  
                 <div class="profile-cell">
-                    <img src="${customer.image_url}" alt="Foto de ${customer.fullName}">
-                    <span>${customer.fullName}</span>
+                <img src="${customer.image_url}" alt="Foto_${customer.fullName}">
                 </div>
             </td>
-            <td>${customer.company || '-'}</td>
+            <td>
+                <span>${customer.fullName}</span>
+            </td>
+            <td> 
+                ${customer.cpf || 'Não Cadastrada'}
+            </td>
+            <td>${customer.company || 'Não Cadastrada'}</td>
+
+
         `;
 
             customerListTbody.appendChild(row);

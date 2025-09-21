@@ -55,13 +55,18 @@ def customer_dashboard(request):
 def customer_list_create_api(request):
     if request.method == "GET":
         customers = Customer.objects.all().order_by('first_name')
-        data = [{
+        clientes_lista = []
+        
+        for c in customers:
+            clientes_lista.append({
             'id': c.id,
             'fullName': c.full_name,
             'company': c.company,
-            'image_url': c.photo_url
-        } for c in customers]
-        return JsonResponse(data, safe=False)
+            'image_url': c.photo_url,
+            'cpf': c.cpf,
+        })
+        
+        return JsonResponse(clientes_lista, safe=False)
 
     elif request.method == "POST":
         data = request.POST

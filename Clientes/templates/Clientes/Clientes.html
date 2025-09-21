@@ -20,19 +20,29 @@
                         <thead>
                             <tr>
                                 <th>
+
+                                </th>
+
+                                <th>
                                     <div class='icon_container'>
                                         <i class="fa fa-user" aria-hidden="true"></i>
                                         <span>Cliente</span>
                                     </div>
                                 </th>
-
+                                <th>
+                                    <div class="icon_container">
+                                        <i class="fa fa-address-card" aria-hidden="true"></i>
+                                        <span>Cpf</span>
+                                    </div>
+                                </th>
+                                </th>
                                 <th>
                                     <div class="icon_container">
                                         <i class="fa fa-building" aria-hidden="true"></i>
                                         <span>Empresa</span>
-
                                     </div>
                                 </th>
+
                             </tr>
                         </thead>
                         <tbody id="customer-list-tbody"></tbody>
@@ -40,7 +50,7 @@
                 </div>
 
             </div>
-             <div class="separador-vertical"></div>
+            <div class="separador-vertical"></div>
 
             {% csrf_token %}
             <div class="customer-detail-panel" id="customer-detail-view">
@@ -193,7 +203,7 @@
 
         {% include "includes/ModalErro.html" %}
 
-        {% include "includes/menuNotificationWindows.html" %}
+   
 
         {% include "includes/toastMenssagem.html" %}
 
@@ -209,36 +219,37 @@
     <script src="{% static 'resources/js/includes/subMenus.js' %}"></script>
     <script src="{% static 'resources/js/includes/menuwindows.js' %}"></script>
     <script src="{% static 'resources/js/includes/ToastMensagem.js' %}"></script>
-     {% comment %} <script src="{% static 'resources/js/includes/theme.js' %}"></script> {% endcomment %}
+    {% comment %}
+    <script src="{% static 'resources/js/includes/theme.js' %}"></script> {% endcomment %}
 
 
 
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const userProfile = document.getElementById('userProfile');
-                const notificationAreaContainer = document.getElementById('notificationAreaContainer');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userProfile = document.getElementById('userProfile');
+            const notificationAreaContainer = document.getElementById('notificationAreaContainer');
 
-                        // Para adicionar uma notificação de sucesso:
-                AdicionarNotificacao('success', 'Evento de aniversário salvo com sucesso!');
+            // Para adicionar uma notificação de sucesso:
+            AdicionarNotificacao('success', 'Evento de aniversário salvo com sucesso!');
 
-                // Para adicionar um aviso:
-                AdicionarNotificacao('warning', 'O backup do sistema está atrasado.');
+            // Para adicionar um aviso:
+            AdicionarNotificacao('warning', 'O backup do sistema está atrasado.');
 
-                // Para adicionar uma notificação de erro:
-                AdicionarNotificacao('error', 'Falha ao conectar com o servidor.');
+            // Para adicionar uma notificação de erro:
+            AdicionarNotificacao('error', 'Falha ao conectar com o servidor.');
 
-                // Para uma notificação de documento:
-                AdicionarNotificacao('document', 'Novo documento "Relatório Mensal" disponível para leitura.');
+            // Para uma notificação de documento:
+            AdicionarNotificacao('document', 'Novo documento "Relatório Mensal" disponível para leitura.');
 
-                // Se o tipo não existir, ele usará o padrão 'info':
-                AdicionarNotificacao('invalido', 'Tipo de notificação inválido, exibindo padrão.');
+            // Se o tipo não existir, ele usará o padrão 'info':
+            AdicionarNotificacao('invalido', 'Tipo de notificação inválido, exibindo padrão.');
 
 
-                userProfile.addEventListener('click', () => {
-                    notificationAreaContainer.classList.toggle('open');
-                });
+            userProfile.addEventListener('click', () => {
+                notificationAreaContainer.classList.toggle('open');
             });
-        </script>
+        });
+    </script>
 
     {% endblock %}
 

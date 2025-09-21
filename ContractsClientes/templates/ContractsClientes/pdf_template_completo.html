@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 
 <head>
@@ -30,20 +30,187 @@
         .signature-image {
             max-width: 250px;
             max-height: 100px;
+            margin-bottom: 10px;
+        }
+
+        .no-signature {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 
 <body>
+    {{ content|safe }}
     <div>
-        {{ content|safe }}
     </div>
 
     <div class="signature-block">
+        {% if signature_uri %}
         <img src="{{ signature_uri }}" alt="Assinatura" class="signature-image">
+        {% else %}
+        <div class="no-signature">Assinatura não disponível</div>
+        {% endif %}
         <div class="signature-line"></div>
-        <p>{{ client_name }}<br>{{ client_cpf }} <br> Protocolo do Contrato: {{ protocol_number }} <br>Assinado em: {{ signed_date }} </p>
+        <p>{{ client_name }}<br>{{ client_cpf }} <br> Protocolo do Contrato: {{ protocol_number }} <br>Assinado em: {{
+            signed_date }} </p>
     </div>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Contrato</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+
+        body {
+            font-family: 'Helvetica', sans-serif;
+            font-size: 10pt;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        /* --- Estilos do cabeçalho --- */
+        .header {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .header img {
+            max-width: 250px;
+            height: auto;
+            margin-right: 20px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .header-text {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* --- Estilos da assinatura (melhorados para PDF) --- */
+        .signature-container {
+            padding-top: 50px;
+            text-align: center;
+            /* Centraliza a caixa de assinatura */
+        }
+
+        .signature-box {
+            /* Usamos display: table para garantir o layout */
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            padding: 15px 25px;
+            /* Adiciona padding para o conteúdo interno */
+        }
+
+        .signature-box table {
+            width: auto;
+            /* A tabela se ajusta ao conteúdo */
+            border-collapse: collapse;
+        }
+
+        .signature-box td {
+            padding: 0;
+            vertical-align: middle;
+            /* Alinha o conteúdo verticalmente no centro */
+        }
+
+        .signature-image-block {
+            padding-right: 30px;
+            /* Adiciona espaço entre a assinatura e o texto */
+            text-align: center;
+        }
+
+        .signature-image {
+            max-width: 150px;
+            /* Diminui o tamanho máximo da imagem */
+            height: auto;
+            border-bottom: 1px dashed #666;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+
+        .digital-signature-text-block {
+            line-height: 1.6;
+            font-size: 9pt;
+            white-space: nowrap;
+            /* Evita quebras de linha desnecessárias */
+        }
+
+        .digital-signature-text-block p {
+            margin: 0;
+        }
+
+        .signature-text-bold {
+            font-weight: bold;
+            font-size: 10pt;
+            color: #1a1a1a;
+            text-transform: uppercase;
+        }
+
+        .verification-details {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid;
+            font-size: 8pt;
+            color: #000000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <span class="header-text">Raquel Machado Advocacia</span>
+    </div>
+
+    {{ content|safe }}
+
+    <div class="signature-container">
+        <div class="signature-box">
+            <table>
+                <tr>
+                    <td>
+                        <div class="signature-image-block">
+                            <img src="{{ signature_uri }}" alt="Assinatura Digital" class="signature-image">
+                            <p>Assinatura Digital</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="digital-signature-text-block">
+                            <p><span class="signature-text-bold">Assinado Digitalmente por:</span></p>
+                            <p>{{ client_name }}</p>
+                            <div class="verification-details">
+                                <p>CPF: {{ client_cpf }} </p>
+                                <p>Protocolo: {{ protocol_number }}</p>
+                                <p>Data: {{ signed_date }}</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
 </body>
 
 </html>

@@ -143,22 +143,11 @@ header {
     /* Garante que os painéis não ultrapassem a altura */
 }
 
-/* CORRIGIDO: Painel da lista de clientes */
-/* .customer-list-panel {
-    width: 50%;
-    min-width: 350px;
-    background-color: var(--panel-bg);
-    border-right: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    Adiciona rolagem APENAS a este painel se necessário */
 
 
 
 .customer-list-panel {
     width: 35%;
-    /* Ajustado para melhor proporção */
     min-width: 350px;
     /* background-color: var(--panel-bg); */
     display: flex;
@@ -167,22 +156,9 @@ header {
     /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); */
     margin: 27px;
     border-radius: 10px;
+    border: 1px dashed
 }
 
-
-.separador-vertical {
-  width: 3px; /* Largura da linha vertical */
-  height: 100%; /* Altura da linha, ajuste conforme necessário */
-  background-color: #   ; /* Cor da linha */
-}
-/* CORRIGIDO: Painel de detalhes do cliente */
-/* .customer-detail-panel {
-    width: 65%;
-    /* Ocupa o restante do espaço */
-/* padding: 2.5rem; */
-/* overflow-y: auto; */
-/* Adiciona rolagem APENAS a este painel se necessário */
-/* }  */
 
 
 .customer-detail-panel {
@@ -192,6 +168,7 @@ header {
     /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); */
     margin: 27px;
     border-radius: 10px;
+    border: 1px dashed;
     /* background-color: var(--panel-bg); */
 }
 
@@ -255,6 +232,7 @@ aside {
     transition: width var(--transition-speed) ease, padding var(--transition-speed) ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
+    border: 1px dashed;
 }
 
 aside.collapsed {
@@ -656,24 +634,25 @@ h1 {
 
 .table-container {
     flex-grow: 1;
-    overflow-y: auto;
-    margin: 10px;
+    overflow-y: hidden;
+    border-radius: 10px;
 }
+
 
 table {
     width: 100%;
-    border-collapse: collapse;
-    border: 1px dashed var(--border-color);
-    border-bottom: none !important;
+    border-radius: 10px !important
+        /* border-collapse: collapse; */
+        /* border: 1px dashed var(--border-color);
+    border-bottom: none !important; */
 }
 
 th,
 td {
     padding: 0.85rem 1.5rem;
     text-align: left;
-    border-bottom: var(--border-color);
+    border-bottom: 1px solid var(--border-color);
     color: var(--text-muted);
-    border: 1px dashed var(--border-color);
     font-size: 0.75rem;
 }
 

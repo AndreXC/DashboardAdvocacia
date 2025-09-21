@@ -67,29 +67,29 @@ function updateDisplayDate() {
     currentDayDate.textContent = today.toLocaleDateString('pt-BR', options);
 }
 
-function showModal(date) {
-    selectedDate = date;
-    const existingEvent = events.find(event => event.date.toDateString() === date.toDateString());
+// function showModal(date) {
+//     selectedDate = date;
+//     const existingEvent = events.find(event => event.date.toDateString() === date.toDateString());
 
-    if (existingEvent) {
-        modalTitle.textContent = 'Detalhes do Evento';
-        eventDetailsContainer.style.display = 'block';
-        eventFormContainer.style.display = 'none';
-        viewEventType.textContent = existingEvent.type;
-        viewEventMessage.textContent = existingEvent.message;
-        viewModeBtns.style.display = 'flex';
-        addModeBtns.style.display = 'none';
-    } else {
-        modalTitle.textContent = `Adicionar Evento para ${date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}`;
-        eventDetailsContainer.style.display = 'none';
-        eventFormContainer.style.display = 'block';
-        eventTypeInput.value = '';
-        eventMessageInput.value = '';
-        viewModeBtns.style.display = 'none';
-        addModeBtns.style.display = 'flex';
-    }
-    eventModalOverlay.classList.add('open');
-}
+//     if (existingEvent) {
+//         modalTitle.textContent = 'Detalhes do Evento';
+//         eventDetailsContainer.style.display = 'block';
+//         eventFormContainer.style.display = 'none';
+//         viewEventType.textContent = existingEvent.type;
+//         viewEventMessage.textContent = existingEvent.message;
+//         viewModeBtns.style.display = 'flex';
+//         addModeBtns.style.display = 'none';
+//     } else {
+//         modalTitle.textContent = `Adicionar Evento para ${date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}`;
+//         eventDetailsContainer.style.display = 'none';
+//         eventFormContainer.style.display = 'block';
+//         eventTypeInput.value = '';
+//         eventMessageInput.value = '';
+//         viewModeBtns.style.display = 'none';
+//         addModeBtns.style.display = 'flex';
+//     }
+//     eventModalOverlay.classList.add('open');
+// }
 
 function closeModal() {
     eventModalOverlay.classList.remove('open');
@@ -174,7 +174,7 @@ function renderCalendar() {
             dayCell.classList.add('has-event');
         }
 
-        dayCell.addEventListener('click', () => showModal(currentDate));
+        // dayCell.addEventListener('click', () => showModal(currentDate));
 
         calendarGrid.appendChild(dayCell);
     }
@@ -225,7 +225,7 @@ function removeNotification(notificationElement) {
  */
 function AdicionarNotificacao(type, message, actionUrl = '#') {
     const iconClass = ICON_MAP[type] || ICON_MAP['info'];
-    
+
     notificationCount++;
     updateNotificationViewState();
 

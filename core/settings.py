@@ -25,7 +25,14 @@ SECRET_KEY = 'django-insecure-#^3b6qu6yg!@o(f6nj4dg_2i+g5^erkgr_zw(%)k!76_@nbdh=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+
+# CSRF_TRUSTED_ORIGINS = [
+#     "https://62ab4fee5d4b.ngrok-free.app",
+#     # se usar http também:
+#     # "http://62ab4fee5d4b.ngrok-free.app",
+# ]
+
 
 
 # Application definition
@@ -107,11 +114,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
+
+USE_L10N = True
 
 USE_TZ = True
 

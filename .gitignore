@@ -57,8 +57,5 @@ htmlcov/
 *.pid
 *.seed
 *.pid.lock
-
 .signatures/
 .signed_contracts/
-
-

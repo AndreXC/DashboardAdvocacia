@@ -231,10 +231,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Envia o CSRF no Header, conforme solicitado
                     'X-CSRFToken': csrfToken,
                 },
-                // Converte o objeto JavaScript para uma string JSON
                 body: JSON.stringify(payload),
             });
 
