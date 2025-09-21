@@ -1593,10 +1593,11 @@ svg {
     margin-top: 4px;
 }
 
-.button-primary:disabled {
+.button-primary:disabled,
+.button-primary[disabled] { /* Inclua [disabled] para máxima compatibilidade */
     opacity: 0.5;
     cursor: not-allowed;
-    pointer-events: all;
+    pointer-events: none; /* CORREÇÃO AQUI! Isto impede que o clique seja processado. */
 }
 
 /* Container para as notificações (Posicionado no canto superior direito) */
@@ -1924,3 +1925,26 @@ svg {
     font-size: 14px;
     color: #71767b;
 }
+
+/* --- CSS para as mensagens de erro --- */
+
+/* Estiliza o form-group quando há erro */
+.form-group.has-error .floating-label label {
+    color: #e53935; /* Vermelho mais forte para a label flutuante */
+}
+
+/* Estiliza o input quando há erro */
+.form-group.has-error input {
+    border-color: #e53935 !important;
+    box-shadow: 0 0 0 1px #e53935;
+}
+
+/* Estilo da mensagem de erro */
+.error-message {
+    color: #e53935;
+    font-size: 0.75rem; /* Fonte pequena */
+    margin-top: 4px;
+    margin-bottom: -10px; /* Ajuda a compactar o espaço */
+    padding-left: 2px;
+}
+

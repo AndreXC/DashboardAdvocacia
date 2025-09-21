@@ -596,14 +596,117 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 
+    function cleanError(inputElement) {
+        const formGroup = inputElement.closest('.form-group');
+        if (formGroup) {
+            formGroup.classList.remove('has-error');
+            const existingError = formGroup.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+        }
+    }
+
+    function displayError(inputElement, message) {
+        const formGroup = inputElement.closest('.form-group');
+        if (formGroup) {
+            formGroup.classList.add('has-error');
+
+            // Cria e insere o elemento da mensagem de erro logo abaixo do input
+            const errorMessage = document.createElement('p');
+            errorMessage.classList.add('error-message');
+            errorMessage.textContent = message;
+
+            // Insere a mensagem após o input, mas dentro do form-group
+            inputElement.parentNode.insertBefore(errorMessage, inputElement.nextSibling);
+
+            const firstErrorInput = document.querySelector('.form-group.has-error input');
+
+            if (firstErrorInput === inputElement) {
+                inputElement.focus();
+            }
+        }
+    }
+
+
+    function validateCustomerForm(formData, formElement) {
+        let isValid = true;
+        let focusSet = false; 
+        
+        const validationRules = { 
+            'firstName': { required: true, requiredMessage: "O Nome é obrigatório." },
+            'email': { required: true, requiredMessage: "O E-mail é obrigatório.", regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, regexMessage: "Formato de E-mail inválido." },
+            'cpf': { required: true, requiredMessage: "O CPF é obrigatório.", regex: /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/, regexMessage: "CPF inválido." },
+            'address': { required: true, requiredMessage: "O Endereço é obrigatório." }
+        };
+        
+        const inputsWithErrors = []; 
+
+        for (const name in validationRules) {
+            const rules = validationRules[name];
+            const value = formData.get(name);
+            const inputElement = formElement.querySelector(`#${name}`);
+            
+            if (!inputElement) continue;
+
+            if (rules.required && (!value || !value.trim())) {
+                inputsWithErrors.push({ element: inputElement, message: rules.requiredMessage });
+                isValid = false;
+            } 
+
+            else if (value.trim() && rules.regex) {
+                const finalValue = (name === 'cpf') ? value.replace(/[^\d]/g, '') : value;
+                if (!rules.regex.test(finalValue)) {
+                    inputsWithErrors.push({ element: inputElement, message: rules.regexMessage });
+                    isValid = false;
+                }
+            }
+        }
+        
+        return { isValid, inputsWithErrors };
+    }
+
+    function checkFormValidity() {
+        const customerForm = document.getElementById('customer-form');
+        const saveButton = document.getElementById('save-customer-btn-form');
+        
+        // 1. Limpa todos os erros visíveis antes de reavaliar
+        customerForm.querySelectorAll('.form-group input').forEach(input => cleanError(input));
+
+        // 2. Revalida o formulário
+        const formData = new FormData(customerForm);
+        const { isValid, inputsWithErrors } = validateCustomerForm(formData, customerForm);
+
+
+        
+        saveButton.disabled = !isValid;
+        
+        if (!isValid) {
+            let firstErrorInput = null;
+            
+            inputsWithErrors.forEach(error => {
+                displayError(error.element, error.message);
+                if (!firstErrorInput) {
+                    firstErrorInput = error.element;
+                }
+            });
+            
+            // Foca no primeiro campo com erro
+            if (firstErrorInput) {
+                firstErrorInput.focus();
+            }
+        }
+    }
+
 
     const handleCustomerFormSubmit = async (e) => {
         e.preventDefault();
+        const saveButton = document.getElementById('save-customer-btn');
+        saveButton.disabled = true;
 
         const formData = new FormData(customerForm);
-
-        if (!formData.get('firstName') || !formData.get('email')) {
-            showToast('warning', 'Nome e E-mail são obrigatórios.');
+        if (!validateCustomerForm(formData, customerForm).isValid) {
+            checkFormValidity();
             return;
         }
 
@@ -686,6 +789,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         customerForm.addEventListener('submit', handleCustomerFormSubmit);
+        customerForm.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', checkFormValidity);
+        });
+        customerForm.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', () => {
+                    cleanError(input); 
+                });
+            });
         serviceForm.addEventListener('submit', handleServiceFormSubmit);
         paymentTypeSelect.addEventListener('change', handlePaymentTypeChange);
 
