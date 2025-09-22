@@ -7,17 +7,13 @@
             </div>
             <div class="modal-body">
                 <div class="form-grid">
-                    <div class="form-group floating-label">
+                    
+                    <div class="form-group floating-label full-width">
                         <input type="text" id="serviceName" placeholder=" " required>
                         <label for="serviceName">Nome do Serviço</label>
                     </div>
 
-                    <div class="form-group floating-label">
-                        <input type="text" id="ServiceProtocolo" placeholder=" " required>
-                        <label for="ServiceProtocolo">Protocolo do Serviço</label>
-                    </div>
-
-
+                    
                     <div class="form-group floating-label full-width">
                         <select id="AreaDireitoAdmin" required>
                             {% for direito in direitos %}
@@ -76,7 +72,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="button-secondary cancel-btn">Cancelar</button>
-                <button type="submit" class="button-primary">Adicionar Serviço</button>
+                <button type="submit" class="button-primary" id="save-service-btn_form" disabled>Adicionar Serviço</button>
             </div>
         </form>
     </div>

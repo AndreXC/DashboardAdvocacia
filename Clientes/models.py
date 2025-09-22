@@ -64,6 +64,8 @@ class Invoice(models.Model):
         PENDING = 'pendente', 'Pendente'
         PAID = 'pago', 'Pago'
         OVERDUE = 'vencido', 'Vencido'
+        
+    
 
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='invoices')
     description = models.CharField(max_length=255)

@@ -129,7 +129,6 @@ def customer_list_create_api(request):
 
 
 
-
 # @require_http_methods(["GET", "PUT", "DELETE"])
 # def customer_detail_api(request, pk):
 #     try:

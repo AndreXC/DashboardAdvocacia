@@ -214,7 +214,8 @@
     </main>
 
     {% block scripts %}
-    <script src="{% static 'Clientes/js/Cliente.js' %}"></script>
+    {% comment %} <script src="{% static 'Clientes/js/Cliente.js' %}"></script> {% endcomment %}
+    <script src="{% static 'Clientes/js/init.js' %}" type="module"></script>
     <script src="{% static 'Clientes/js/dragdropFotoClient.js' %}"></script>
     <script src="{% static 'resources/js/includes/subMenus.js' %}"></script>
     <script src="{% static 'resources/js/includes/menuwindows.js' %}"></script>
