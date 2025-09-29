@@ -116,142 +116,59 @@ const handleStatusChange = async (e) => {
 
 
 
-
-function displayError(inputElement, message) {
-    const formGroup = inputElement.closest('.form-group');
-    if (formGroup) {
-        formGroup.classList.add('has-error');
+const validatorFormAddService = (formError) => {
+    const FormService = new FormData(DOMElements.serviceForm);
+    console.log(FormService)
+    for (const name in formError)
+    { 
+        console.log(name)
+        console.log(formError)
+        const inputElement = FormService.querySelector(`#${name}`);
+        inputElement.closest('.form-group');
 
         const errorMessage = document.createElement('p');
         errorMessage.classList.add('error-message');
         errorMessage.textContent = message;
 
         inputElement.parentNode.insertBefore(errorMessage, inputElement.nextSibling);
-
     }
-
-}
-
-function cleanError(inputElement) {
-    const formGroup = inputElement.closest('.form-group');  
-    if (formGroup) {
-        formGroup.classList.remove('has-error');
-        const existingError = formGroup.querySelector('.error-message');
-        if (existingError) {
-            existingError.remove();
-        }
-    }
-}
-
-
-function validateServiceForm(formData, formElement) {
-    let isValid = true;
-    const inputsWithErrors = []; 
-
-    const paymentType = formData.get('paymentType');
-
-    const validationRules = { 
-        'serviceName': { required: true, requiredMessage: "O Nome do serviço é obrigatório." },
-        'paymentType': { required: true, requiredMessage: "O Tipo de pagamento é obrigatório.", isSelect: true },
-        'serviceValue': { required: true, regex: /^\d+(\.\d{1,2})?$/, requiredMessage: "O Valor total do serviço é obrigatório.", regexMessage: "O Valor total deve ser um número válido (ex: 1000.00)." },
-        
-        'serviceEntryValue': { 
-            required: (paymentType === 'parcelado'), 
-            regex: /^\d+(\.\d{1,2})?$/, 
-            requiredMessage: "O Valor de entrada é obrigatório para parcelamento.", 
-            regexMessage: "O Valor de entrada deve ser um número válido (ex: 1000.00)." 
-        },
-        
-        'serviceInstallments': { 
-            required: (paymentType === 'parcelado'), 
-            regex: /^\d+$/, 
-            requiredMessage: "A quantidade de parcelas é obrigatória para parcelamento.", 
-            regexMessage: "O número de parcelas deve ser um número inteiro." 
-        },
-        
-        'serviceInterest': { required: false, regex: /^\d+(\.\d{1,2})?$/, regexMessage: "A taxa de juros deve ser um número válido (ex: 5.00)." },
-    };
-    
-    for (const name in validationRules) {
-        const rules = validationRules[name];
-        const value = formData.get(name);
-        const inputElement = formElement.querySelector(`#${name}`);
-        
-        if (!inputElement) continue;
-
-        const isRequired = rules.required;
-        const isEmpty = !value || !String(value).trim() || (rules.isSelect && value === '');
-
-        if (isRequired && isEmpty) {
-            inputsWithErrors.push({ element: inputElement, message: rules.requiredMessage });
-            isValid = false;
-            continue;
-        } 
-
-        else if (value && rules.regex) {
-            let finalValue = value;
-            
-            if (inputElement.type === 'number' || ['serviceValue', 'serviceEntryValue', 'serviceInterest'].includes(name)) {
-                 finalValue = finalValue.replace(/\./g, '').replace(',', '.');
-            }
-            
-            if (!rules.regex.test(finalValue)) {
-                inputsWithErrors.push({ element: inputElement, message: rules.regexMessage });
-                isValid = false;
-            }
-        }
-    }
-    
-    return { isValid, inputsWithErrors };
-}
-
-function CheckFormValidityService() {
-    DOMElements.serviceForm.querySelectorAll('.form-group input, .form-group select, .form-group textarea').forEach(element => cleanError(element)); 
-    
-    const formData = new FormData(DOMElements.serviceForm);
-    const { isValid, inputsWithErrors } = validateServiceForm(formData, DOMElements.serviceForm);
-
-    document.getElementById('save-service-btn_form').disabled = !isValid;
-    
-    if (!isValid) {
-        inputsWithErrors.forEach(error => {
-            displayError(error.element, error.message);
-        });
+    const firstErrorInput = document.querySelector('.form-group.has-error input');
+    if (firstErrorInput === inputElement) {
+        inputElement.focus();
     }
 }
 
 const handleServiceFormSubmit = async (e) => {
     e.preventDefault();
     if (!currentCustomerId.currentCustomerId) return;
+    
+    const button = document.getElementById('save-service-btn_form');
+    button.disabled = true;
 
-    const formData = new FormData(DOMElements.serviceForm);
-    const validationServiceResult = validateServiceForm(formData, DOMElements.serviceForm);
-    if (!validationServiceResult.isValid) {
-        validationServiceResult.inputsWithErrors.forEach(error => displayError(error.element, error.message));
-        saveButton.disabled = false;
-        return;
-    }
 
     const serviceData = {
-        name: document.getElementById('serviceName').value,
-        description: document.getElementById('serviceDescription').value,
-        paymentType: DOMElements.paymentTypeSelect.value,
-        firstPaymentDate: DOMElements.firstPaymentDateInput.value,
-        area_direito: parseInt(document.getElementById('AreaDireitoAdmin').value, 10) || null,
-        totalValue: parseFloat(document.getElementById('serviceValue').value),
-        entryValue: parseFloat(document.getElementById('serviceEntryValue').value) || 0,
-        installments: parseInt(document.getElementById('serviceInstallments').value, 10),
-        interest: parseFloat(document.getElementById('serviceInterest').value) || 0,
+        nome_servico: document.getElementById('nomeService').value,
+        descricao: document.getElementById('descricaoServico').value,
+        tipo_pagamento: document.getElementById('tipoPagamento').value,
+        data_primeiro_pagamento: document.getElementById('datePrimeiroPagamento').value,
+        area_direito: parseInt(document.getElementById('areaDireitoAdmin').value, 10) || null,
+        valor_total_servico: parseFloat(document.getElementById('valorTotalServico').value),
+        valor_entrada_servico: parseFloat(document.getElementById('valorEntradaServico').value) || 0,
+        numero_parcelas: parseInt(document.getElementById('numeroDeParcelas').value, 10),
+        juros_mensal: parseFloat(document.getElementById('jurosMensal').value) || 0,
     };
-    if (!serviceData.firstPaymentDate) {
-        return showToast('warning', 'Por favor, informe a data do 1º pagamento do serviço.');
-    }
 
     try {
-        await apiRequest(`/api/customers/${currentCustomerId.currentCustomerId}/services/`, 'POST', serviceData);
-        await displayCustomerDetails(currentCustomerId.currentCustomerId);
-        closeModal(DOMElements.serviceModal);
-        DOMElements.serviceForm.reset();
+        var content =  await apiRequest(`/api/customers/${currentCustomerId.currentCustomerId}/services/`, 'POST', serviceData);
+        console.log(content)
+        if (content.formError && content.formError.length > 0) {
+            console.log('teste')
+            validatorFormAddService(content.formError)
+            return
+        }
+        // await displayCustomerDetails(currentCustomerId.currentCustomerId);
+        // closeModal(DOMElements.serviceModal);
+        // DOMElements.serviceForm.reset();
     } catch (error) {
         showToast("error", "Falha ao adicionar serviço:", error);
     }
@@ -271,6 +188,5 @@ export {
     handleStatusChange,
     handleServiceFormSubmit,
     handlePaymentTypeChange,
-    CheckFormValidityService,
     currentServiceId,
 };

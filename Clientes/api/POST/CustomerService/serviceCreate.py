@@ -1,12 +1,17 @@
 
 import secrets
-from ....models import Customer, Service, Invoice
-from django.http import HttpRequest
+import sys
+import os
 import json
-from ...comuns.Getareaservice import get_area_direito
 from datetime import date, timedelta
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpRequest
 from django.views.decorators.http import require_http_methods
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
+
+from Clientes.models import Customer, Service, Invoice, AreaDireito
+from validator.formService.form_add_service import ValidatorFormAddService
+from model.model_addService import addService
 
 class CustomerService:
     def __init__(self, customer_id: int, request: HttpRequest):
@@ -14,6 +19,7 @@ class CustomerService:
         self.request = request
         self.StrErr:str = ''
         self.protocolo: str = ''
+        self.validatorFormAddService:dict = {}
 
 
     def generate_protocolo(self) -> bool:
@@ -56,49 +62,50 @@ class CustomerService:
 
     def _create_service(self) -> bool: 
         try:
-            cliente = Customer.objects.get(pk=self.customer_id)
+            formularioAddService = json.loads(self.request.body)
+            if not formularioAddService:
+                self.StrErr = 'Dados do formulário de serviço estão vazios.'
+                return False
 
-            self.StrErr = 'Erro ao decodificar dados do json Service.'
-            body_request_service = json.loads(self.request.body)
+            instanceValidFormularioAddService = ValidatorFormAddService(formularioAddService)
+            if not instanceValidFormularioAddService.is_valid():
+                self.validatorFormAddService = instanceValidFormularioAddService.validated_errors
+                return False
             
-            self.StrErr = 'Área de Direito não encontrada.'
-            id_area_direito = body_request_service.get('area_direito')
 
-
-            self.StrErr = 'Erro ao buscar a Área de Direito.'
-            instanceAreaDireito = get_area_direito(id_area_direito) if id_area_direito else None
-
+            instanceAddService = addService(**formularioAddService)
+            cliente = Customer.objects.get(pk=self.customer_id)
+            area_direito_instance = AreaDireito.objects.get(pk=instanceAddService.area_direito)
+            
             if not self.generate_protocolo():
                 return False
 
-            #criando Seriço no banco de dados
             self.StrErr = 'Erro ao criar o serviço.'
             service = Service.objects.create(
                 customer=cliente,
-                nome_servico=body_request_service.get('name'),
+                nome_servico=instanceAddService.nome_servico,
                 protocolo=self.protocolo,
-                area_direito=instanceAreaDireito,
-                total_value=body_request_service.get('totalValue')
+                area_direito=area_direito_instance,
+                total_value=instanceAddService.valor_total_servico,
+                status=Service.StatusChoices.ACTIVE
             )
             
-            # Lógica para criar as faturas (invoices)
-            self.StrErr = 'Erro ao criar as faturas.'
-            DiaprimeiroPagamento = date.fromisoformat(body_request_service.get('firstPaymentDate'))
-            if body_request_service.get('paymentType') == 'avista':
+            self.StrErr = 'Erro ao criar a estrutura de parcelamento.'
+            if instanceAddService.tipo_pagamento == 'avista':
                 Invoice.objects.create(
                     service=service,
                     description='Pagamento Único',
-                    due_date=DiaprimeiroPagamento,
+                    due_date=date.fromisoformat(instanceAddService.data_primeiro_pagamento),
                     value=service.total_value,
                     status=Invoice.StatusChoices.PENDING
                 )
             else: # Parcelado
                 self.StrErr = 'Erro ao criar invoice.'
-                installments = int(body_request_service.get('installments'))
+                installments = int(instanceAddService.numero_parcelas)
                 installment_value = service.total_value / installments
                 for i in range(installments):
                     self.StrErr += f'Erro ao criar invoice item {i}'
-                    due_date = DiaprimeiroPagamento + timedelta(days=30 * i)
+                    due_date = date.fromisoformat(instanceAddService.data_primeiro_pagamento) + timedelta(days=30 * i)
                     Invoice.objects.create(
                         service=service,
                         description=f"Parcela {i+1}/{installments}",
@@ -109,10 +116,16 @@ class CustomerService:
                     
             return True
                     
+                
+                    
         except Customer.DoesNotExist:
-               self.StrErr +=  'Cliente não encontrado.'
+               self.StrErr +=  ' Cliente não encontrado.'
                return False
 
+        except AreaDireito.DoesNotExist:
+            self.StrErr +=  ' Área do direito não encontrada.'
+            return False
+        
         except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
             # Captura erros de formato de dados e campos ausentes
             self.StrErr += ' :'  + str(e.args)
@@ -122,13 +135,9 @@ class CustomerService:
             self.StrErr += ' :'  + str(e.args)
             return False
 
-
-
-
 @require_http_methods(["POST"])
-def service_create_api(request, customer_pk) -> JsonResponse:
+def service_create_api(request: HttpRequest, customer_pk: int) -> JsonResponse:
     InstanceCustomerService = CustomerService(customer_pk, request)
-    status =  InstanceCustomerService._create_service()
-    if not status:
-        return JsonResponse({'error': InstanceCustomerService.StrErr}, status=500)
+    if not  InstanceCustomerService._create_service():
+        return JsonResponse({'error': InstanceCustomerService.StrErr, 'formError': InstanceCustomerService.validatorFormAddService}, status=400)
     return JsonResponse({'message': 'Serviço criado com sucesso.'}, status=201)

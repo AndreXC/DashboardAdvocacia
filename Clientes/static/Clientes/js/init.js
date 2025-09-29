@@ -47,10 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
         alertModalText: document.getElementById('alert-modal-text'),
         customerForm: document.getElementById('customer-form'),
         serviceForm: document.getElementById('service-form'),
-        paymentTypeSelect: document.getElementById('paymentType'),
         entryValueGroup: document.getElementById('entry-value-group'),
         parcelamentoGroup: document.getElementById('parcelamento-group'),
-        firstPaymentDateInput: document.getElementById('firstPaymentDate'),
         addNewCustomerBtn: document.getElementById('add-new-customer-btn'),
         addNewServiceBtn: document.getElementById('add-new-service-btn'),
         editCustomerBtn: document.getElementById('edit-customer-btn'),
@@ -113,13 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         DOMElements.serviceForm.addEventListener('submit', Servico.handleServiceFormSubmit);
-        DOMElements.serviceForm.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', Servico.CheckFormValidityService);
-        });
 
-        DOMElements.paymentTypeSelect.addEventListener('change', Servico.handlePaymentTypeChange);
 
-        // Contrato Event Listeners
         DOMElements.closeNewContractModalBtn.addEventListener('click', Contrato.closeNewContractModal);
         DOMElements.cancelNewContractBtn.addEventListener('click', Contrato.closeNewContractModal);
         DOMElements.newContractFormCliente.addEventListener('submit', Contrato.submitNewContractForm);

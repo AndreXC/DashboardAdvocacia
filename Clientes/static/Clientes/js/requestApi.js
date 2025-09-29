@@ -1,8 +1,8 @@
 // requestApi.js
 const getCsrfToken = () => document.querySelector('[name=csrfmiddlewaretoken]').value;
-
 const openModal = (modal) => modal.classList.add('show');
 const closeModal = (modal) => modal.classList.remove('show');
+
 
 const apiRequest = async (url, method = 'GET', body = null) => {
     const options = {
@@ -23,17 +23,25 @@ const apiRequest = async (url, method = 'GET', body = null) => {
 
     try {
         const response = await fetch(url, options);
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: `Erro HTTP! Status: ${response.status}` }));
-            throw new Error(errorData.error || `Erro desconhecido`);
+
+        switch (response.status) {
+            case 200:  // OK
+                return await response.json();
+
+            case 204:
+                return null;
+
+            case 400:  
+                return await response.json();
+
+            default:   
+                const errorData = await response.json().catch(() => ({
+                    error: `Erro HTTP! Status: ${response.status}`
+                }));
+                throw new Error(errorData.error || "Erro desconhecido");
         }
-        if (response.status === 204) {
-            return null;
-        }
-        return response.json();
     } catch (error) {
-        showToast('error:', error.message);
-        throw error;
+        throw error
     }
 };
 

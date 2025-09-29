@@ -7,72 +7,67 @@
             </div>
             <div class="modal-body">
                 <div class="form-grid">
-                    
                     <div class="form-group floating-label full-width">
-                        <input type="text" id="serviceName" placeholder=" " required>
-                        <label for="serviceName">Nome do Serviço</label>
+                        <input type="text" id="nomeService" placeholder=" " required>
+                        <label for="nomeService">Nome do Serviço</label>
                     </div>
-
-                    
                     <div class="form-group floating-label full-width">
-                        <select id="AreaDireitoAdmin" required>
+                        <select id="areaDireitoAdmin" required>
                             {% for direito in direitos %}
                             <option value="{{ direito.id }}">{{ direito.nome }}</option>
                             {% endfor %}
                         </select>
-                        <label for="AreaDireitoAdmin">Escolha a Especialidade Jurídica do Serviço</label>
+                        <label for="areaDireitoAdmin">Escolha a Especialidade Jurídica do Serviço</label>
                     </div>
-
-
                     <div class="form-group floating-label full-width">
-                        <textarea id="serviceDescription" placeholder=" " rows="2"></textarea>
-                        <label for="serviceDescription">Descrição</label>
+                        <textarea id="descricaoServico" placeholder=" " rows="2"></textarea>
+                        <label for="descricaoServico">Descrição</label>
                     </div>
                 </div>
 
 
                 <div class="form-grid">
                     <div class="form-group floating-label">
-                        <select id="paymentType" required>
+                        <select id="tipoPagamento" required>
                             <option value="avista" selected>À Vista</option>
                             <option value="parcelado">Parcelado</option>
                         </select>
-                        <label for="paymentType">Tipo de Pagamento</label>
+                        <label for="tipoPagamento">Tipo de Pagamento</label>
                     </div>
 
                     <div class="form-group floating-label">
-                        <input type="date" id="firstPaymentDate" required>
-                        <label for="firstPaymentDate">Data do 1º Pagamento</label>
+                        <input type="date" id="datePrimeiroPagamento" required>
+                        <label for="datePrimeiroPagamento">Data do 1º Pagamento</label>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group floating-label full-width">
-                        <input type="number" id="serviceValue" placeholder=" " required min="0" step="0.01">
-                        <label for="serviceValue">Valor Total (R$)</label>
+                        <input type="number" id="valorTotalServico" placeholder=" " required min="0" step="0.01">
+                        <label for="valorServico">Valor Total (R$)</label>
                     </div>
                 </div>
 
                 <div id="parcelamento-group" class="hidden">
                     <div class="form-grid3">
                         <div id="entry-value-group" class="form-group floating-label hidden">
-                            <input type="number" id="serviceEntryValue" placeholder=" " min="0" step="0.01">
+                            <input type="number" id="valorEntradaServico" placeholder=" " min="0" step="0.01">
                             <label for="serviceEntryValue">Valor da Entrada (R$)</label>
                         </div>
                         <div id="installments-group" class="form-group floating-label">
-                            <input type="number" id="serviceInstallments" placeholder=" " min="1" step="1">
-                            <label for="serviceInstallments">Qtd. de Parcelas</label>
+                            <input type="number" id="numeroDeParcelas" placeholder=" " min="1" step="1">
+                            <label for="numeroDeParcelas">Qtd. de Parcelas</label>
                         </div>
                         <div class="form-group floating-label">
-                            <input type="number" id="serviceInterest" placeholder=" " value="0" min="0" step="0.01">
-                            <label for="serviceInterest">Juros Mensal (%)</label>
+                            <input type="number" id="jurosMensal" placeholder=" " value="0" min="0" step="0.01">
+                            <label for="jurosMensal">Juros Mensal (%)</label>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="button-secondary cancel-btn">Cancelar</button>
-                <button type="submit" class="button-primary" id="save-service-btn_form" disabled>Adicionar Serviço</button>
+                <button type="submit" class="button-primary" id="save-service-btn_form">Adicionar Serviço</button>
             </div>
         </form>
     </div>

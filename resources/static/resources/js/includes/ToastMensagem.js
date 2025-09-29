@@ -53,6 +53,6 @@ function createToast(type, message, duration = 5000) {
 
 function showToast(type, Mensagem) {
     createToast(type, Mensagem);
-     AdicionarNotificacaoMenuWindow('fa fa-info-circle', Mensagem);
+    //  AdicionarNotificacaoMenuWindow('fa fa-info-circle', Mensagem);
 }
 // =======================================  
