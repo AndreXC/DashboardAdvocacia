@@ -1,15 +1,6 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 from . import imports as imp
-
-
-
-
-
-
-
-
-
 
 app_name = 'Clientes'
 
@@ -18,8 +9,7 @@ urlpatterns = [
     path('', views.customer_dashboard, name='dashboard'),
     # API para criar um novo Clientes
     path('api/customers/', views.customer_list_create_api, name='api_customer_list_create'),
-    # extrair dados do cliente, editar, excluir.
-    path('api/customers/<int:pk>/', imp.CustomerDetailAPI.as_view(), name='api_customer_detail'),
+    path('api/cliente/<int:pk>/',views.customer_detail_api , name='api_customer_detail'),
    
    
     # API para Serviços

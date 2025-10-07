@@ -3,7 +3,7 @@ import { apiRequest, formatCurrency, formatDate, closeModal } from './requestApi
 import { displayCustomerDetails } from './clientes.js';
 
 let currentServiceId = null;
-let currentCustomerId = null; 
+let currentCustomerId = null;
 
 const DOMElements = {};
 
@@ -117,31 +117,33 @@ const handleStatusChange = async (e) => {
 
 
 const validatorFormAddService = (formError) => {
-    const FormService = new FormData(DOMElements.serviceForm);
-    console.log(FormService)
-    for (const name in formError)
-    { 
-        console.log(name)
-        console.log(formError)
-        const inputElement = FormService.querySelector(`#${name}`);
-        inputElement.closest('.form-group');
+    const formElement = DOMElements.serviceForm;
+
+    for (const name in formError) {
+        const inputElement = formElement.querySelector(`#${name}`);
+
+        if (!inputElement) continue;
+
+        inputElement.closest('.form-group')?.classList.add('has-error');
 
         const errorMessage = document.createElement('p');
         errorMessage.classList.add('error-message');
-        errorMessage.textContent = message;
+        errorMessage.textContent = formError[name] ?? "Erro neste campo";
 
         inputElement.parentNode.insertBefore(errorMessage, inputElement.nextSibling);
     }
-    const firstErrorInput = document.querySelector('.form-group.has-error input');
-    if (firstErrorInput === inputElement) {
-        inputElement.focus();
+
+    const firstErrorInput = formElement.querySelector('.form-group.has-error input');
+    if (firstErrorInput) {
+        firstErrorInput.focus();
     }
-}
+};
+
 
 const handleServiceFormSubmit = async (e) => {
     e.preventDefault();
     if (!currentCustomerId.currentCustomerId) return;
-    
+
     const button = document.getElementById('save-service-btn_form');
     button.disabled = true;
 
@@ -159,17 +161,18 @@ const handleServiceFormSubmit = async (e) => {
     };
 
     try {
-        var content =  await apiRequest(`/api/customers/${currentCustomerId.currentCustomerId}/services/`, 'POST', serviceData);
-        console.log(content)
-        if (content.formError && content.formError.length > 0) {
-            console.log('teste')
-            validatorFormAddService(content.formError)
-            return
+        const { status, result } = await apiRequest(`/api/customers/${currentCustomerId.currentCustomerId}/services/`, 'POST', serviceData);
+        if (status == 400) {
+            validatorFormAddService(result.formError)
         }
+
+        // return
+        // }
         // await displayCustomerDetails(currentCustomerId.currentCustomerId);
         // closeModal(DOMElements.serviceModal);
         // DOMElements.serviceForm.reset();
     } catch (error) {
+        console.log(error)
         showToast("error", "Falha ao adicionar serviço:", error);
     }
 };

@@ -12,6 +12,7 @@ from django.conf import settings
 import os
 import uuid
 from .api.POST.CustomerService.serviceCreate import CustomerService
+from api.GET.GetClientes.get_clientes import GetClientes
 
 
 def customer_dashboard(request):
@@ -125,6 +126,21 @@ def customer_list_create_api(request):
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+        
+        
+        
+def customer_detail_api(request, pk):
+    match request.method:
+        case "GET":
+            instanceCliente:GetClientes= GetClientes(costumer_id=pk)
+            if not instanceCliente._GetCliente():
+                return JsonResponse({'error': instanceCliente.strErr}, status=400)
+            
+            return JsonResponse(instanceCliente.cliente, status=200)
+        
+        
+            
+    
 
 
 

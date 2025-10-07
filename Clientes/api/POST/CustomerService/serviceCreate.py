@@ -127,7 +127,6 @@ class CustomerService:
             return False
         
         except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
-            # Captura erros de formato de dados e campos ausentes
             self.StrErr += ' :'  + str(e.args)
             return False
 

@@ -3,7 +3,7 @@ import { apiRequest, openModal, closeModal } from './requestApi.js';
 import { renderServicesList } from './servico.js';
 import { renderContractsList, openNewContractModal } from './contrato.js';
 
-let currentCustomerId = null;       
+let currentCustomerId = null;
 let customerCache = [];
 let isEditMode = false;
 
@@ -73,10 +73,12 @@ const renderInfoFields = (customer, inEditMode = false) => {
     });
 };
 
-const exitEditMode = async (shouldSaveChanges, customerData = null) => {
+const exitEditMode = async (shouldSaveChanges) => {
     if (!shouldSaveChanges) {
-        const customer = customerData || await apiRequest(`/api/customers/${currentCustomerId}/`);
-        renderInfoFields(customer, false);
+        const { status, result } = await apiRequest(`/api/customers/${currentCustomerId}/`);
+        if (status == 200) {
+            renderInfoFields(result, false);
+        }
     }
 
     isEditMode = false;
@@ -89,31 +91,34 @@ const exitEditMode = async (shouldSaveChanges, customerData = null) => {
 const displayCustomerDetails = async (customerId) => {
     try {
         const containerMainCustomer = document.getElementById('customer-detail-view');
-        const customer = await apiRequest(`/api/customers/${customerId}/`);
-        if (!customer) return;
+        const { status: status_customer, result: resultCustomer } = await apiRequest(`/api/cliente/${customerId}/`);
 
-        if (isEditMode) await exitEditMode(false, customer);
-        currentCustomerId = customer.id;
+        if (status_customer != 200) return;
+
+        const { status: status_contracts, result: resultContracts } = await apiRequest(`/api/customers/${customerId}/contracts/`);
+
+        if (status_contracts != 200) return;
+
+        if (isEditMode) await exitEditMode(false);
+        currentCustomerId = resultCustomer.id;
 
         containerMainCustomer.classList.add('fade-in-start');
         if (containerMainCustomer.classList.contains('fade-in-end')) {
             containerMainCustomer.classList.remove('fade-in-end');
         }
 
-        const contracts = await apiRequest(`/api/customers/${customerId}/contracts/`);
-
         document.querySelectorAll('#customer-list-tbody tr').forEach(row => {
-            row.classList.toggle('selected', row.dataset.customerId == customer.id);
+            row.classList.toggle('selected', row.dataset.customerId == resultCustomer.id);
         });
 
-        document.getElementById('customer-photo').src = customer.photoUrl || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-        document.getElementById('customer-fullname').textContent = `${customer.firstName} ${customer.lastName}`;
+        document.getElementById('customer-photo').src = resultCustomer.photoUrl || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+        document.getElementById('customer-fullname').textContent = `${resultCustomer.firstName} ${resultCustomer.lastName}`;
 
-        renderInfoFields(customer, false);
-        renderServicesList(customer.services);
-        renderContractsList(contracts);
+        renderInfoFields(resultCustomer, false);
+        renderServicesList(resultCustomer.services);
+        renderContractsList(resultContracts);
         DOMElements.newContractBtn.onclick = () => {
-            openNewContractModal(customer);
+            openNewContractModal(resultCustomer);
         };
 
         switchTab('info');
@@ -133,8 +138,11 @@ const displayCustomerDetails = async (customerId) => {
 
 const loadAndStoreCustomers = async () => {
     try {
-        customerCache = await apiRequest('/api/customers/');
-        renderCustomerList(customerCache);
+        const { status, result } = await apiRequest('/api/customers/');
+        if (status == 200) {
+            renderCustomerList(result);
+        }
+
     } catch (error) {
         showToast("error", "Falha ao carregar lista inicial de clientes:" + error);
     }
@@ -248,27 +256,27 @@ function displayError(inputElement, message) {
 
 function validateCustomerForm(formData, formElement) {
     let isValid = true;
-    
-    const validationRules = { 
+
+    const validationRules = {
         'firstName': { required: true, requiredMessage: "O Nome é obrigatório." },
         'email': { required: true, requiredMessage: "O E-mail é obrigatório.", regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, regexMessage: "Formato de E-mail inválido." },
         'cpf': { required: true, requiredMessage: "O CPF é obrigatório.", regex: /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/, regexMessage: "CPF inválido." },
         'address': { required: true, requiredMessage: "O Endereço é obrigatório." }
     };
-    
-    const inputsWithErrors = []; 
+
+    const inputsWithErrors = [];
 
     for (const name in validationRules) {
         const rules = validationRules[name];
         const value = formData.get(name);
         const inputElement = formElement.querySelector(`#${name}`);
-        
+
         if (!inputElement) continue;
 
         if (rules.required && (!value || !value.trim())) {
             inputsWithErrors.push({ element: inputElement, message: rules.requiredMessage });
             isValid = false;
-        } 
+        }
 
         else if (value.trim() && rules.regex) {
             const finalValue = (name === 'cpf') ? value.replace(/[^\d]/g, '') : value;
@@ -278,7 +286,7 @@ function validateCustomerForm(formData, formElement) {
             }
         }
     }
-    
+
     return { isValid, inputsWithErrors };
 }
 
@@ -287,12 +295,12 @@ function checkFormValidityCliente() {
 
     const formData = new FormData(DOMElements.customerForm);
     const { isValid, inputsWithErrors } = validateCustomerForm(formData, DOMElements.customerForm);
-    
+
     document.getElementById('save-customer-btn-form').disabled = !isValid;
 
     if (!isValid) {
         let firstErrorInput = null;
-        
+
         inputsWithErrors.forEach(error => {
             displayError(error.element, error.message);
             if (!firstErrorInput) {

@@ -23,18 +23,16 @@ const apiRequest = async (url, method = 'GET', body = null) => {
 
     try {
         const response = await fetch(url, options);
-
         switch (response.status) {
-            case 200:  // OK
-                return await response.json();
-
+            case 200:
+            case 400:
+                const status = response.status
+                const result = await response.json()
+                return { status, result };
             case 204:
                 return null;
 
-            case 400:  
-                return await response.json();
-
-            default:   
+            default:
                 const errorData = await response.json().catch(() => ({
                     error: `Erro HTTP! Status: ${response.status}`
                 }));

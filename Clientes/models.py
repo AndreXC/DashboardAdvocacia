@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-
+# default='https://cdn-icons-png.flaticon.com/512/149/149071.png'
 
 class Customer(models.Model):
     first_name = models.CharField(max_length=100)
@@ -12,8 +12,9 @@ class Customer(models.Model):
     address = models.CharField(max_length=255, blank=True, null=True)
     company = models.CharField(max_length=100, blank=True, null=True)
     position = models.CharField(max_length=100, blank=True, null=True)
-    photo_url = models.URLField(max_length=500, blank=True, null=True, default='https://cdn-icons-png.flaticon.com/512/149/149071.png')
+    photo_url = models.URLField(max_length=500, blank=True, null=True, )
     created_at = models.DateTimeField(default=timezone.now) 
+    
     
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -44,19 +45,15 @@ class Service(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='services')
     nome_servico = models.CharField(max_length=200)
     protocolo = models.CharField(max_length=100, unique=True, default='')
-   
-    # category = models.ForeignKey(CategoriaServico, on_delete=models.SET_NULL, null=True, blank=True)
     area_direito = models.ForeignKey(AreaDireito, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.ACTIVE)
     total_value = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        # A nova lógica para exibir o protocolo no dropdown
         return f"Protocolo: {self.protocolo} - {self.nome_servico}"
 
     class Meta:
-        # Ordene por protocolo para facilitar a busca visual
         ordering = ['protocolo']
 
 class Invoice(models.Model):
