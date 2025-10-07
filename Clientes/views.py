@@ -2,8 +2,10 @@
 import json
 from datetime import date, timedelta
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_http_methods
+
+from .api.GET.GetContractClientes.Get_Contracts import ApiContractCustomer
 from .models import Customer, Service, Invoice, AreaDireito, CategoriaServico
 from ContractsClientes.models import Contract
 from django.shortcuts import render, get_object_or_404
@@ -20,37 +22,6 @@ def customer_dashboard(request):
     return render(request, 'Clientes/Clientes.html', {'direitos': direitos})
 
 
-
-# def contract_list_api(request, customer_id):
-#     # O get_object_or_404 está correto para garantir que o cliente exista.
-#     customer = get_object_or_404(Customer, id=customer_id)
-    
-#     # Busca os contratos desse cliente usando a query otimizada que você sugeriu.
-#     contracts_list = Contract.objects.filter(
-#         client=customer
-#     ).select_related('client', 'template').order_by('-created_at')
-    
-#     # 1. Preparamos uma lista vazia para armazenar os dados dos contratos.
-#     data = []
-
-#     # 2. Iteramos sobre a queryset de contratos.
-#     for contract in contracts_list:
-         
-#         # signing_url = reverse('ContractsClientes:sign_contract', args=[contract.signature_link_id])
-#         signing_url = reverse('ContractsClientes:sign', args=[contract.signature_link_id])
-#         pdf_url = reverse('ContractsClientes:view_pdf', args=[contract.id])
-
-#         data.append({
-#             'id': contract.id,
-#             'template': contract.template.title if contract.template else 'Modelo Removido',
-#             'status': contract.get_status_display(),
-#             'statusCode': contract.status,           
-#             'signingUrl': request.build_absolute_uri(signing_url), # URL completa para assinar
-#             'pdfUrl': request.build_absolute_uri(pdf_url) if pdf_url else None, # URL completa do PDF
-#             'createdAt': contract.created_at.strftime('%d/%m/%Y'),
-#         })
-    
-#     return JsonResponse(data, safe=False)
 
 @require_http_methods(["GET", "POST"])
 def customer_list_create_api(request):
@@ -142,76 +113,6 @@ def customer_detail_api(request, pk):
             
     
 
-
-
-
-# @require_http_methods(["GET", "PUT", "DELETE"])
-# def customer_detail_api(request, pk):
-#     try:
-#         customer = Customer.objects.get(pk=pk)
-#     except Customer.DoesNotExist:
-#         return JsonResponse({'error': 'Cliente não encontrado'}, status=404)
-
-#     if request.method == "GET":
-#         services_data = []
-#         for service in customer.services.all():
-#             invoices_data = [{
-#                 'id': i.id,
-#                 'description': i.description,
-#                 'dueDate': i.due_date,
-#                 'value': i.value,
-#                 'status': i.status,
-#             } for i in service.invoices.all().order_by('due_date')]
-            
-#             services_data.append({
-#                 'id': service.id,
-#                 'nomeServico': service.nome_servico,
-#                 'status': service.status,
-#                 'totalValue': service.total_value,
-#                 'invoices': invoices_data,
-#                 'protocolo': service.protocolo,
-#                 'areaDireito': service.area_direito.nome
-#             })
-
-#         data = {
-#             'id': customer.id,
-#             'firstName': customer.first_name,
-#             'lastName': customer.last_name,
-#             'email': customer.email,
-#             'phone': customer.phone,
-#             'address': customer.address,
-#             'company': customer.company,
-#             'position': customer.position,
-#             'photoUrl': customer.photo_url,
-#             'services': services_data
-#         }
-#         return JsonResponse(data)
-
-#     elif request.method == "PUT":
-#         data = json.loads(request.body)
-#         # Atualiza os campos do cliente
-#         for key, value in data.items():
-#             setattr(customer, key, value)
-#         customer.save()
-#         return JsonResponse({'message': 'Cliente atualizado com sucesso'})
-
-#     elif request.method == "DELETE":
-#         customer.delete()
-#         return JsonResponse({}, status=204) 
-
-
-
-# @require_http_methods(["POST"])
-# def service_create_api(request, customer_pk):
-#     InstanceCustomerService = CustomerService(customer_pk, request)
-#     success, StrErr = InstanceCustomerService._create_service()
-    
-#     if not success:
-#         return JsonResponse({'error': StrErr}, status=500)
-#     return JsonResponse({'message': 'Serviço criado com sucesso.'}, status=201)
-
-
-
 @require_http_methods(["PUT"])
 def service_detail_api(request, pk):
     data = json.loads(request.body)
@@ -233,3 +134,22 @@ def invoice_detail_api(request, pk):
         return JsonResponse({'status': invoice.status})
     except Invoice.DoesNotExist:
         return JsonResponse({'error': 'Fatura não encontrada'}, status=404)
+    
+    
+    
+@require_http_methods(["POST"])
+def service_create_api(request, customer_pk: int) -> JsonResponse:
+    InstanceCustomerService = CustomerService(customer_pk, request)
+    if not  InstanceCustomerService._create_service():
+        return JsonResponse({'error': InstanceCustomerService.StrErr, 'formError': InstanceCustomerService.validatorFormAddService}, status=400)
+    return JsonResponse({'message': 'Serviço criado com sucesso.'}, status=201)
+
+
+@require_http_methods(['GET'])
+def contract_list_api(request, customer_id) -> JsonResponse:
+    instanceApiContratoList = ApiContractCustomer(request=request, customer_id=customer_id)
+    if not instanceApiContratoList._GetContractsCostumer():
+        return JsonResponse({'error': str(instanceApiContratoList.StrErr)}, status=400)
+    return JsonResponse(instanceApiContratoList.contratos, safe=False)
+    
+    
