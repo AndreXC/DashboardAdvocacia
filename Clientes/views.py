@@ -5,6 +5,8 @@ from django.shortcuts import render
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_http_methods
 
+from .api.PUT.updateCliente.update_cliente import updateCliente
+
 from .api.GET.GetContractClientes.Get_Contracts import ApiContractCustomer
 from .models import Customer, Service, Invoice, AreaDireito, CategoriaServico
 from ContractsClientes.models import Contract
@@ -13,7 +15,7 @@ from django.urls import reverse
 from django.conf import settings
 import os
 import uuid
-from .api.POST.CustomerService.serviceCreate import CustomerService
+from .api.POST.CustomerService.service_create import CustomerService
 from api.GET.GetClientes.get_clientes import GetClientes
 
 
@@ -108,7 +110,11 @@ def customer_detail_api(request, pk):
                 return JsonResponse({'error': instanceCliente.strErr}, status=400)
             
             return JsonResponse(instanceCliente.cliente, status=200)
-        
+        case "PUT":
+            instanceUpdateCliente:updateCliente = updateCliente(request, pk)
+            if not instanceUpdateCliente._updateCliente():
+                return JsonResponse({'error': instanceUpdateCliente.strErr}, status =400)
+            return JsonResponse({'messagem': 'Cliente autalizado com sucesso'}, status=200)
         
             
     

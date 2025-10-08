@@ -84,12 +84,20 @@ const renderInvoicesForService = (service) => {
 };
 
 const handleServiceSelect = async (e) => {
-    if (e.target.matches('.status-select')) return;
-    const row = e.target.closest('tr');
-    if (row && row.dataset.serviceId) {
-        const customer = await apiRequest(`/api/customers/${currentCustomerId.currentCustomerId}/`);
-        const service = customer.services.find(s => s.id == row.dataset.serviceId);
-        if (service) renderInvoicesForService(service);
+    try {
+        if (e.target.matches('.status-select')) return;
+        const row = e.target.closest('tr');
+        if (row && row.dataset.serviceId) {
+            const { status, result } = await apiRequest(`/api/cliente/${currentCustomerId.currentCustomerId}/`);
+            if (!status ==200) {
+                throw new Error(result.error);
+            }   
+
+            const service = result.services.find(s => s.id == row.dataset.serviceId);
+            renderInvoicesForService(service);
+        }
+    }catch (e) {
+      showToast('error', "Falha ao obter detalhes do serviço:" + e.message);  
     }
 };
 
@@ -104,13 +112,18 @@ const handleStatusChange = async (e) => {
     const url = entity === 'service' ? `/api/services/${id}/` : `/api/invoices/${id}/`;
 
     try {
-        await apiRequest(url, 'PUT', { status: newStatus });
+        const { status, result } = await apiRequest(url, 'PUT', { status: newStatus });
+
+        if (!status ==200){
+            throw new Error(result.error);
+        }
+
         select.className = `status-select status-${newStatus.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`;
         if (entity === 'service' && id == currentServiceId) {
             await displayCustomerDetails(currentCustomerId.currentCustomerId);
         }
-    } catch (error) {
-        showToast('error', `Falha ao atualizar status de ${entity}:` + error);
+    } catch (e) {
+        showToast('error', `Falha ao atualizar status de ${entity}:` + e.message);
     }
 };
 

@@ -1,27 +1,32 @@
 import json
 import sys
 import os
+from django.http import HttpRequest
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 from model.model_cliente import modelCliente
 from Clientes.models import Customer
 
+
 class updateCliente:
-    def __init__(self, request:dict):
-        self.request:dict = request
+    def __init__(self, request:HttpRequest, customer_id:int):
+        self.request:HttpRequest = request
         self.strErr:str = ''
+        self.cliente_id:int =  customer_id
         
-    def _updateCliente(self, customer_id:int):
+    def _updateCliente(self):
         try:
-            if self.request is None:
-                self.strErr = '[updateCliente] - Não foram encontrados campos para atualizar o cliente'
-                return False
+
+            dados_clientes = json.loads(self.request.body)
+
             
-            clienteModelUpdate: modelCliente = modelCliente(**self.request)
-            
+
+
+            clienteModelUpdate: modelCliente = modelCliente(**dados_clientes)
             campos_cliente = {
                 'first_name': clienteModelUpdate.nome,
                 'last_name': clienteModelUpdate.sobrenome,
+                'cpf': clienteModelUpdate.cpf, 
                 'email': clienteModelUpdate.email,
                 'phone': clienteModelUpdate.telefone,
                 'address': clienteModelUpdate.endereco,
@@ -36,8 +41,7 @@ class updateCliente:
                 self.strErr = '[updateCliente] - Nenhum campo com valor para autalizar o cliente.'
                 return False
 
- 
-            Customer.objects.filter(pk=customer_id).update(**dados_cliente_autalizar)
+            Customer.objects.filter(id=self.cliente_id).update(**dados_cliente_autalizar)
             return True
         
         except json.JSONDecodeError:

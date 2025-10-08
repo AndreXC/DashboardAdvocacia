@@ -29,19 +29,23 @@ class GetClientes:
                     'status': i.status,
                 } for i in service.invoices.all().order_by('due_date')]
                 
-                services.append({
-                    'id': service.id,
-                    'nomeServico': service.nome_servico,
-                    'status': service.status,
-                    'totalValue': service.total_value,
-                    'invoices': invoices_data,
-                    'protocolo': service.protocolo,
-                    'areaDireito': service.area_direito.nome
-                })
+                
+                if service.status == 'Ativo':
+                    services.append({
+                        'id': service.id,
+                        'nomeServico': service.nome_servico,
+                        'status': service.status,
+                        'totalValue': service.total_value,
+                        'invoices': invoices_data,
+                        'protocolo': service.protocolo,
+                        'areaDireito': service.area_direito.nome
+                    })
+                
 
             self.cliente = {
                 'id': cliente.id,
                 'firstName': cliente.first_name,
+                'cpf': cliente.cpf,
                 'lastName': cliente.last_name,
                 'email': cliente.email,
                 'phone': cliente.phone,

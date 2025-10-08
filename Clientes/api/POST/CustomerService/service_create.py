@@ -134,3 +134,9 @@ class CustomerService:
             self.StrErr += ' :'  + str(e.args)
             return False
 
+@require_http_methods(["POST"])
+def service_create_api(request: HttpRequest, customer_pk: int) -> JsonResponse:
+    InstanceCustomerService = CustomerService(customer_pk, request)
+    if not  InstanceCustomerService._create_service():
+        return JsonResponse({'error': InstanceCustomerService.StrErr, 'formError': InstanceCustomerService.validatorFormAddService}, status=400)
+    return JsonResponse({'message': 'Serviço criado com sucesso.'}, status=201)

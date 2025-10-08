@@ -13,6 +13,11 @@ const initializeCustomerElements = (elements) => {
     Object.assign(DOMElements, elements);
 };
 
+
+const disabledButton = (elementButton, disblad) => {
+    elementButton.disabled = disblad
+}
+
 const switchTab = (tabId) => {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
@@ -43,9 +48,9 @@ const renderCustomerList = (customers) => {
                 <span>${customer.fullName}</span>
             </td>
             <td> 
-                ${customer.cpf || 'Não Cadastrada'}
+                ${customer.cpf || 'Indefinido'}
             </td>
-            <td>${customer.company || 'Não Cadastrada'}</td>
+            <td>${customer.company || 'Indefinido'}</td>
         `;
 
         DOMElements.customerListTbody.appendChild(row);
@@ -53,11 +58,17 @@ const renderCustomerList = (customers) => {
 };
 
 const renderInfoFields = (customer, inEditMode = false) => {
+    
     const fields = [
-        { label: 'Nome', key: 'firstName', value: customer.firstName }, { label: 'Sobrenome', key: 'lastName', value: customer.lastName },
-        { label: 'E-mail', key: 'email', value: customer.email, type: 'email' }, { label: 'Telefone', key: 'phone', value: customer.phone, type: 'tel' },
-        { label: 'Endereço', key: 'address', value: customer.address }, { label: 'Empresa', key: 'company', value: customer.company },
+        { label: 'Nome', key: 'firstName', value: customer.firstName },
+        { label: 'Sobrenome', key: 'lastName', value: customer.lastName },
+        { label: 'Cpf', key:'cpf', value: customer.cpf},
+        { label: 'E-mail', key: 'email', value: customer.email, type: 'email' },
+        { label: 'Telefone', key: 'phone', value: customer.phone, type: 'tel' },
+        { label: 'Endereço', key: 'address', value: customer.address }, 
+        { label: 'Empresa', key: 'company', value: customer.company },
         { label: 'Cargo', key: 'position', value: customer.position },
+        
     ];
     DOMElements.tabContentInfo.innerHTML = '<div class="info-grid"></div>';
     const infoGrid = DOMElements.tabContentInfo.querySelector('.info-grid');
@@ -74,18 +85,24 @@ const renderInfoFields = (customer, inEditMode = false) => {
 };
 
 const exitEditMode = async (shouldSaveChanges) => {
-    if (!shouldSaveChanges) {
-        const { status, result } = await apiRequest(`/api/customers/${currentCustomerId}/`);
-        if (status == 200) {
+    try{
+        if (!shouldSaveChanges) {
+            const { status, result } = await apiRequest(`api/cliente/${currentCustomerId}/`);
+            if (!status == 200) {
+                throw new Error(result.error);
+            }
             renderInfoFields(result, false);
         }
-    }
 
-    isEditMode = false;
-    DOMElements.editCustomerBtn.classList.remove('hidden');
-    DOMElements.deleteCustomerBtn.classList.remove('hidden');
-    DOMElements.saveCustomerBtn.classList.add('hidden');
-    DOMElements.cancelEditBtn.classList.add('hidden');
+ 
+        isEditMode = false;
+        DOMElements.editCustomerBtn.classList.remove('hidden');
+        DOMElements.deleteCustomerBtn.classList.remove('hidden');
+        DOMElements.saveCustomerBtn.classList.add('hidden');
+        DOMElements.cancelEditBtn.classList.add('hidden');
+    } catch (e) {
+        showToast('error', "Falha ao salvar alterações:" + e.message)
+  }
 };
 
 const displayCustomerDetails = async (customerId) => {
@@ -167,35 +184,54 @@ const handleCustomerSelect = (e) => {
 };
 
 const enterEditMode = async () => {
-    const customer = await apiRequest(`/api/customers/${currentCustomerId}/`);
-    if (!customer) return;
+    try {
+        const { status, result } = await apiRequest(`api/cliente/${currentCustomerId}/`);
 
-    isEditMode = true;
-    renderInfoFields(customer, true);
-    DOMElements.editCustomerBtn.classList.add('hidden');
-    DOMElements.deleteCustomerBtn.classList.add('hidden');
-    DOMElements.saveCustomerBtn.classList.remove('hidden');
-    DOMElements.cancelEditBtn.classList.remove('hidden');
+        if (!status==200) {
+        throw new Error(result.error);
+        }
+
+        isEditMode = true;
+        renderInfoFields(result, true);
+        DOMElements.editCustomerBtn.classList.add('hidden');
+        DOMElements.deleteCustomerBtn.classList.add('hidden');
+        DOMElements.saveCustomerBtn.classList.remove('hidden');
+        DOMElements.cancelEditBtn.classList.remove('hidden');
+
+
+
+    } catch (e) {
+        showToast('error', "erro ao tentar editar informações do cliente:" + e.message);
+  }
 };
 
 const handleSaveChanges = async () => {
+    disabledButton(DOMElements.saveCustomerBtn, true);
     const customerData = {
-        first_name: document.getElementById('edit-firstName').value,
-        last_name: document.getElementById('edit-lastName').value,
+        id_cliente: currentCustomerId,
+        nome: document.getElementById('edit-firstName').value,
+        sobrenome: document.getElementById('edit-lastName').value,
+        cpf: document.getElementById('edit-cpf').value,
         email: document.getElementById('edit-email').value,
-        phone: document.getElementById('edit-phone').value,
-        address: document.getElementById('edit-address').value,
-        company: document.getElementById('edit-company').value,
+        telefone: document.getElementById('edit-phone').value,
+        endereco: document.getElementById('edit-address').value,
+        empresa: document.getElementById('edit-company').value,
         position: document.getElementById('edit-position').value,
     };
 
     try {
-        await apiRequest(`/api/customers/${currentCustomerId}/`, 'PUT', customerData);
+        const { status, result } = await apiRequest(`api/cliente/${currentCustomerId}/`, 'PUT', customerData);
+        if (!status == 200) {
+            throw new Error(result.error);
+        }
+
         await exitEditMode(true);
         await displayCustomerDetails(currentCustomerId);
         await loadAndStoreCustomers();
-    } catch (error) {
-        showToast('error', "Falha ao atualizar cliente:" + error);
+        disabledButton(DOMElements.saveCustomerBtn, false);
+    } catch (e) {
+        disabledButton(DOMElements.saveCustomerBtn, false);
+        showToast('error', "Falha ao atualizar cliente:" + e.message);
     }
 };
 
@@ -210,7 +246,7 @@ const handleDeleteRequest = async () => {
 const handleDeleteConfirm = async () => {
     if (!currentCustomerId) return;
     try {
-        await apiRequest(`/api/customers/${currentCustomerId}/`, 'DELETE');
+        await apiRequest(`api/customers/${currentCustomerId}/`, 'DELETE');
 
         customerCache = customerCache.filter(c => c.id !== currentCustomerId);
         renderCustomerList(customerCache);
