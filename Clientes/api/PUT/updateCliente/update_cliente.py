@@ -26,7 +26,7 @@ class updateCliente:
             campos_cliente = {
                 'first_name': clienteModelUpdate.nome,
                 'last_name': clienteModelUpdate.sobrenome,
-                'cpf': clienteModelUpdate.cpf, 
+                'cpf': clienteModelUpdate.cpfcnpj, 
                 'email': clienteModelUpdate.email,
                 'phone': clienteModelUpdate.telefone,
                 'address': clienteModelUpdate.endereco,

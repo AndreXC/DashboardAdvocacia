@@ -1,19 +1,16 @@
-// init.js
 import {
-     openModal, closeModal
+    openModal, closeModal
 } from './requestApi.js';
 
 import * as Cliente from './clientes.js';
 import * as Servico from './servico.js';
 import * as Contrato from './contrato.js';
 
-// Variáveis de Estado (mantidas aqui para fácil acesso pelos módulos)
 let currentCustomerId = null;
 let currentServiceId = null;
 let isEditMode = false;
 let customerCache = [];
 
-// Para permitir que os módulos acessem as variáveis de estado e elementos DOM.
 const stateAndRefs = {
     get currentCustomerId() { return currentCustomerId; },
     set currentCustomerId(val) { currentCustomerId = val; },
@@ -28,7 +25,7 @@ const stateAndRefs = {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Referências dos Elementos DOM
+
     const DOMElements = {
         searchInput: document.getElementById('search-input'),
         customerListTbody: document.getElementById('customer-list-tbody'),
@@ -57,8 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelEditBtn: document.getElementById('cancel-edit-btn'),
         deleteModalText: document.getElementById('delete-modal-text'),
         deleteConfirmBtn: document.getElementById('delete-confirm-btn'),
+        tipoPessoaSelect: document.getElementById('combotipoPessoa'),
+        cpfCnpjLabel: document.querySelector('label[for="cpfcnpj"]'),
+        cpfCnpjInput: document.getElementById('cpfcnpj'),
 
-        // Contrato Elements
+
         newContractFormCliente: document.getElementById('create-contract-form'),
         newContractBtn: document.getElementById('add-new-contract-btn'),
         newContractModal: document.getElementById('create-contract-modal'),
@@ -70,18 +70,27 @@ document.addEventListener('DOMContentLoaded', () => {
         TituloAddNewContrato: document.getElementById('TituloAddContractCliente'),
         ButtonSUbmitModalAddNewContract: document.getElementById('ButtonSubmitModalAddNewContract'),
     };
-    
-    // Inicializa os módulos com as referências dos elementos DOM
+
     Cliente.initializeCustomerElements(DOMElements);
-    Servico.initializeServiceElements(DOMElements, Cliente); // Passa a referência do módulo Cliente para acessar currentCustomerId
+    Servico.initializeServiceElements(DOMElements, Cliente);
     Contrato.initializeContractElements(DOMElements);
 
 
+    const atualizarLabel = () => {
+        if (DOMElements.tipoPessoaSelect.value === 'J') {
+            DOMElements.cpfCnpjLabel.textContent = 'CNPJ';
+        } else {
+            DOMElements.cpfCnpjLabel.textContent = 'CPF';
+        }
+    }
+
     const setupEventListeners = () => {
+        DOMElements.tipoPessoaSelect.addEventListener('change', atualizarLabel);
+
         DOMElements.searchInput.addEventListener('input', Cliente.handleSearchInput);
         DOMElements.customerListTbody.addEventListener('click', Cliente.handleCustomerSelect);
         DOMElements.detailTabs.addEventListener('click', (e) => e.target.matches('.tab-link') && Cliente.switchTab(e.target.dataset.tab));
-        
+
         DOMElements.servicesTbody.addEventListener('click', Servico.handleServiceSelect);
         DOMElements.servicesTbody.addEventListener('change', Servico.handleStatusChange);
         DOMElements.invoicesTbody.addEventListener('change', Servico.handleStatusChange);
@@ -96,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
         DOMElements.addNewCustomerBtn.addEventListener('click', () => {
             DOMElements.customerForm.reset();
             openModal(DOMElements.customerModal);
-            document.getElementById('save-customer-btn-form').disabled = true;
         });
         DOMElements.addNewServiceBtn.addEventListener('click', () => {
             if (Cliente.currentCustomerId) {
@@ -122,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // Modal close listeners
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('click', (e) => {
                 const isCloseButton = e.target.matches('.close-button') || e.target.matches('.cancel-btn') || e.target.matches('.ok-btn');
@@ -138,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const init = () => {
         setupEventListeners();
-        Cliente.loadAndStoreCustomers();
+        Cliente.renderCustomerList();
     };
 
     init();

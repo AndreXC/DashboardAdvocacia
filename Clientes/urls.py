@@ -6,7 +6,7 @@ urlpatterns = [
     # A página principal
     path('', route.customer_dashboard, name='dashboard'),
     # API para criar um novo Clientes
-    path('api/customers/', route.customer_list_create_api, name='api_customer_list_create'),
+    path('api/clientes/', route.customer_list_create_api, name='api_customer_list_create'),
     path('api/cliente/<int:pk>/',route.customer_detail_api , name='api_customer_detail'),
    
    

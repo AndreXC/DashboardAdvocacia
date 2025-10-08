@@ -4,7 +4,6 @@ import { renderServicesList } from './servico.js';
 import { renderContractsList, openNewContractModal } from './contrato.js';
 
 let currentCustomerId = null;
-let customerCache = [];
 let isEditMode = false;
 
 const DOMElements = {};
@@ -25,50 +24,61 @@ const switchTab = (tabId) => {
     document.querySelector(`.tab-link[data-tab="${tabId}"]`).classList.add('active');
 };
 
-const renderCustomerList = (customers) => {
+const renderCustomerList = async () => {
     DOMElements.customerListTbody.innerHTML = '';
+    try {
+        const { status, result } = await apiRequest('/api/clientes/');
 
-    if (!customers || customers.length === 0) {
-        DOMElements.customerListTbody.innerHTML = '<tr><td colspan="4">Nenhum cliente encontrado.</td></tr>';
-        return;
+        if (!status == 200) {
+            throw new Error(result.error);
+        }
+
+
+        if (result.clientes.length === 0) {
+            DOMElements.customerListTbody.innerHTML = '<tr><td colspan="4">Nenhum cliente encontrado.</td></tr>';
+            return;
+        }
+
+        result.clientes.forEach(customer => {
+            const row = document.createElement('tr');
+            row.dataset.customerId = customer.id;
+            row.className = customer.id === currentCustomerId ? 'selected' : '';
+
+            row.innerHTML = `
+                <td>  
+                    <div class="profile-cell">
+                    <img src="${customer.image_url}" alt="Foto_${customer.fullName}">
+                    </div>
+                </td>
+                <td>
+                    <span>${customer.fullName}</span>
+                </td>
+                <td> 
+                    ${customer.cpf || 'Indefinido'}
+                </td>
+                <td>${customer.company || 'Indefinido'}</td>
+            `;
+
+            DOMElements.customerListTbody.appendChild(row);
+        });
+
+    } catch (error) {
+        showToast('error', "Falha ao carregar lista de clientes:" + error);
     }
-
-    customers.forEach(customer => {
-        const row = document.createElement('tr');
-        row.dataset.customerId = customer.id;
-        row.className = customer.id === currentCustomerId ? 'selected' : '';
-
-        row.innerHTML = `
-            <td>  
-                <div class="profile-cell">
-                <img src="${customer.image_url}" alt="Foto_${customer.fullName}">
-                </div>
-            </td>
-            <td>
-                <span>${customer.fullName}</span>
-            </td>
-            <td> 
-                ${customer.cpf || 'Indefinido'}
-            </td>
-            <td>${customer.company || 'Indefinido'}</td>
-        `;
-
-        DOMElements.customerListTbody.appendChild(row);
-    });
 };
 
 const renderInfoFields = (customer, inEditMode = false) => {
-    
+
     const fields = [
         { label: 'Nome', key: 'firstName', value: customer.firstName },
         { label: 'Sobrenome', key: 'lastName', value: customer.lastName },
-        { label: 'Cpf', key:'cpf', value: customer.cpf},
+        { label: 'Cpf', key: 'cpf', value: customer.cpf },
         { label: 'E-mail', key: 'email', value: customer.email, type: 'email' },
         { label: 'Telefone', key: 'phone', value: customer.phone, type: 'tel' },
-        { label: 'Endereço', key: 'address', value: customer.address }, 
+        { label: 'Endereço', key: 'address', value: customer.address },
         { label: 'Empresa', key: 'company', value: customer.company },
         { label: 'Cargo', key: 'position', value: customer.position },
-        
+
     ];
     DOMElements.tabContentInfo.innerHTML = '<div class="info-grid"></div>';
     const infoGrid = DOMElements.tabContentInfo.querySelector('.info-grid');
@@ -85,7 +95,7 @@ const renderInfoFields = (customer, inEditMode = false) => {
 };
 
 const exitEditMode = async (shouldSaveChanges) => {
-    try{
+    try {
         if (!shouldSaveChanges) {
             const { status, result } = await apiRequest(`api/cliente/${currentCustomerId}/`);
             if (!status == 200) {
@@ -94,7 +104,7 @@ const exitEditMode = async (shouldSaveChanges) => {
             renderInfoFields(result, false);
         }
 
- 
+
         isEditMode = false;
         DOMElements.editCustomerBtn.classList.remove('hidden');
         DOMElements.deleteCustomerBtn.classList.remove('hidden');
@@ -102,7 +112,7 @@ const exitEditMode = async (shouldSaveChanges) => {
         DOMElements.cancelEditBtn.classList.add('hidden');
     } catch (e) {
         showToast('error', "Falha ao salvar alterações:" + e.message)
-  }
+    }
 };
 
 const displayCustomerDetails = async (customerId) => {
@@ -128,7 +138,7 @@ const displayCustomerDetails = async (customerId) => {
             row.classList.toggle('selected', row.dataset.customerId == resultCustomer.id);
         });
 
-        document.getElementById('customer-photo').src = resultCustomer.photoUrl || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+        document.getElementById('customer-photo').src = resultCustomer.photoUrl;
         document.getElementById('customer-fullname').textContent = `${resultCustomer.firstName} ${resultCustomer.lastName}`;
 
         renderInfoFields(resultCustomer, false);
@@ -153,17 +163,7 @@ const displayCustomerDetails = async (customerId) => {
     }
 };
 
-const loadAndStoreCustomers = async () => {
-    try {
-        const { status, result } = await apiRequest('/api/customers/');
-        if (status == 200) {
-            renderCustomerList(result);
-        }
 
-    } catch (error) {
-        showToast("error", "Falha ao carregar lista inicial de clientes:" + error);
-    }
-};
 
 const handleSearchInput = (e) => {
     const searchTerm = e.target.value.toLowerCase();
@@ -187,8 +187,8 @@ const enterEditMode = async () => {
     try {
         const { status, result } = await apiRequest(`api/cliente/${currentCustomerId}/`);
 
-        if (!status==200) {
-        throw new Error(result.error);
+        if (!status == 200) {
+            throw new Error(result.error);
         }
 
         isEditMode = true;
@@ -202,7 +202,7 @@ const enterEditMode = async () => {
 
     } catch (e) {
         showToast('error', "erro ao tentar editar informações do cliente:" + e.message);
-  }
+    }
 };
 
 const handleSaveChanges = async () => {
@@ -227,7 +227,6 @@ const handleSaveChanges = async () => {
 
         await exitEditMode(true);
         await displayCustomerDetails(currentCustomerId);
-        await loadAndStoreCustomers();
         disabledButton(DOMElements.saveCustomerBtn, false);
     } catch (e) {
         disabledButton(DOMElements.saveCustomerBtn, false);
@@ -260,125 +259,57 @@ const handleDeleteConfirm = async () => {
     }
 };
 
-function cleanError(inputElement) {
-    const formGroup = inputElement.closest('.form-group');
-    if (formGroup) {
-        formGroup.classList.remove('has-error');
-        const existingError = formGroup.querySelector('.error-message');
-        if (existingError) {
-            existingError.remove();
-        }
-    }
-}
 
-function displayError(inputElement, message) {
-    const formGroup = inputElement.closest('.form-group');
-    if (formGroup) {
-        formGroup.classList.add('has-error');
-
-        const errorMessage = document.createElement('p');
-        errorMessage.classList.add('error-message');
-        errorMessage.textContent = message;
-
-        inputElement.parentNode.insertBefore(errorMessage, inputElement.nextSibling);
-
-        const firstErrorInput = document.querySelector('.form-group.has-error input');
-
-        if (firstErrorInput === inputElement) {
-            inputElement.focus();
-        }
-    }
-}
-
-function validateCustomerForm(formData, formElement) {
-    let isValid = true;
-
-    const validationRules = {
-        'firstName': { required: true, requiredMessage: "O Nome é obrigatório." },
-        'email': { required: true, requiredMessage: "O E-mail é obrigatório.", regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, regexMessage: "Formato de E-mail inválido." },
-        'cpf': { required: true, requiredMessage: "O CPF é obrigatório.", regex: /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/, regexMessage: "CPF inválido." },
-        'address': { required: true, requiredMessage: "O Endereço é obrigatório." }
-    };
-
-    const inputsWithErrors = [];
-
-    for (const name in validationRules) {
-        const rules = validationRules[name];
-        const value = formData.get(name);
-        const inputElement = formElement.querySelector(`#${name}`);
-
-        if (!inputElement) continue;
-
-        if (rules.required && (!value || !value.trim())) {
-            inputsWithErrors.push({ element: inputElement, message: rules.requiredMessage });
-            isValid = false;
-        }
-
-        else if (value.trim() && rules.regex) {
-            const finalValue = (name === 'cpf') ? value.replace(/[^\d]/g, '') : value;
-            if (!rules.regex.test(finalValue)) {
-                inputsWithErrors.push({ element: inputElement, message: rules.regexMessage });
-                isValid = false;
-            }
-        }
-    }
-
-    return { isValid, inputsWithErrors };
-}
-
-function checkFormValidityCliente() {
-    DOMElements.customerForm.querySelectorAll('.form-group input').forEach(input => cleanError(input));
-
-    const formData = new FormData(DOMElements.customerForm);
-    const { isValid, inputsWithErrors } = validateCustomerForm(formData, DOMElements.customerForm);
-
-    document.getElementById('save-customer-btn-form').disabled = !isValid;
-
-    if (!isValid) {
-        let firstErrorInput = null;
-
-        inputsWithErrors.forEach(error => {
-            displayError(error.element, error.message);
-            if (!firstErrorInput) {
-                firstErrorInput = error.element;
-            }
-        });
-    }
-}
 
 const handleCustomerFormSubmit = async (e) => {
     e.preventDefault();
-    const saveButton = document.getElementById('save-customer-btn');
-    saveButton.disabled = true;
+    const nome = document.getElementById('firstName');
+    const sobrenome = document.getElementById('lastName');
+    const email = document.getElementById('email');
+    const comboTipoPessoaSelect = document.getElementById('combotipoPessoa');
+    const cpfCnpjInput = document.getElementById('cpfcnpj');
+    const telefoneinput = document.getElementById('phone');
+    const enderecoinput = document.getElementById('address');
+    const empresa = document.getElementById('company');
+    const positionInput = document.getElementById('position');
+    const photoUploadInput = document.getElementById('photoUpload');
 
-    const formData = new FormData(DOMElements.customerForm);
-    const validationResult = validateCustomerForm(formData, DOMElements.customerForm);
-    if (!validationResult.isValid) {
-        validationResult.inputsWithErrors.forEach(error => displayError(error.element, error.message));
-        saveButton.disabled = false;
-        return;
-    }
+    const formData = {
+        nome: nome.value,
+        sobrenome: sobrenome.value,
+        email: email.value,
+        tipoPessoa: comboTipoPessoaSelect.value,
+        cpfcnpj: cpfCnpjInput.value,
+        telefone: telefoneinput.value,
+        endereco: enderecoinput.value,
+        empresa: empresa.value,
+        position: positionInput.value,
+        photo_url: photoUploadInput.files.length > 0 ? photoUploadInput.files[0] : ''
+    };
 
     try {
-        const newCustomer = await apiRequest('/api/customers/', 'POST', formData);
+        const { status, result } = await apiRequest('api/clientes/', 'POST', formData);
 
-        customerCache.push(newCustomer);
-        renderCustomerList(customerCache);
+        if (!status == 200) {
+            throw new Error(result.error);
+        }
+
+        renderCustomerList();
         await displayCustomerDetails(newCustomer.id);
         closeModal(DOMElements.customerModal);
         DOMElements.customerForm.reset();
-        resetDragDropComponent(); // Assumindo que essa função existe globalmente
+        resetDragDropComponent();
+
     } catch (error) {
         showToast('error', "Falha ao criar cliente:" + error);
-    } finally {
-        saveButton.disabled = false;
     }
-};
+}
+
 
 export {
     initializeCustomerElements,
     displayCustomerDetails,
-    loadAndStoreCustomers,
+    renderCustomerList,
     handleSearchInput,
     handleCustomerSelect,
     enterEditMode,
@@ -388,7 +319,6 @@ export {
     handleCustomerFormSubmit,
     exitEditMode,
     switchTab,
-    checkFormValidityCliente,
     currentCustomerId,
     isEditMode,
 };

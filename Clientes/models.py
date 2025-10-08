@@ -1,21 +1,30 @@
 from django.db import models
 from django.utils import timezone
 
-# default='https://cdn-icons-png.flaticon.com/512/149/149071.png'
 
 class Customer(models.Model):
+    TIPO_PESSOA_CHOICES = [
+        ('F', 'Física'),
+        ('J', 'Jurídica'),
+    ]
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
-    cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF", default='')
+    cpfCnpj = models.CharField(max_length=14, unique=True, verbose_name="CPFCnpj", default='')
     phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     company = models.CharField(max_length=100, blank=True, null=True)
     position = models.CharField(max_length=100, blank=True, null=True)
-    photo_url = models.URLField(max_length=500, blank=True, null=True, )
+    tipo_pessoa = models.CharField(
+        max_length=1,
+        choices=TIPO_PESSOA_CHOICES,
+        default='F',
+        verbose_name="Tipo de Pessoa"
+    )
+
+    photo_url = models.URLField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now) 
-    
-    
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -33,7 +42,6 @@ class AreaDireito(models.Model):
 
     def __str__(self):
         return self.nome
-    
     
 
 class Service(models.Model):
